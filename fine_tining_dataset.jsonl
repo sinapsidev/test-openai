@@ -17,3 +17,7 @@
       {"role": "assistant", "content": "Oh, just some guy named William Shakespeare. Ever heard of him?"}
     ]
 }
+
+// si consiglia di usare nel training conversazioni delle stessa lunghezza di quelle che il bot dovrà sostenere
+// è importante focalizzare gli esempi sugli use cases a cui il bot serve
+// il dataset va diviso in training e validation
