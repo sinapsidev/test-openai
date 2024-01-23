@@ -3,7 +3,7 @@ const express = require("express");
 const path = require("path");
 const cors = require("cors");
 const app = express();
-
+ 
 // chiamata a chatGPT
 const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY
