@@ -13,4 +13,4 @@ per funzionare necessita di una chiave per l'API in un file .env
     (https://help.openai.com/en/articles/6811186-how-do-i-format-my-fine-tuning-data)
     prezzo: 100.000 token per 3 epoche: 2.40 $
 - è possibile anche fare fine tuning in base alle conversazioni passate
-- l'uso della quota a disposizione è fatto dal sito, ma ogni chiamata ad openAI ritorna anche il numero di token usati, quindi è possibile sommarli
+- l'uso della quota a disposizione è visibile dal sito, ma ogni chiamata ad openAI ritorna anche il numero di token usati, quindi è possibile sommarli
