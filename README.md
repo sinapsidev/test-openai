@@ -10,6 +10,7 @@ per funzionare necessita di una chiave per l'API in un file .env
 - fare fine tuning è possibile a pagamento, fornendo al modello i dati in JSONL su cui vogliamo allenarlo (tra i 10 e i 100 esempi)
     (https://www.linkedin.com/pulse/how-fine-tune-chatgpt-gpt-35-turbo-utilizing-new#:~:text=Prepare%20Your%20Data,of%2050%20to%20100%20examples.)
     (https://sintra.ai/blog/chatgpt-fine-tuning)
+    (https://help.openai.com/en/articles/6811186-how-do-i-format-my-fine-tuning-data)
     prezzo: 100.000 token per 3 epoche: 2.40 $
 - è possibile anche fare fine tuning in base alle conversazioni passate
 - l'uso della quota a disposizione è fatto dal sito, ma ogni chiamata ad openAI ritorna anche il numero di token usati, quindi è possibile sommarli
