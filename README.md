@@ -7,7 +7,11 @@ per funzionare necessita di una chiave per l'API in un file .env
 
 ### Idee
 - con un assitente si può assegnare un thread ad ogni utente, in modo che il modello abbia taraccia delle conversazioni passate (https://serpapi.com/blog/assistant-api-openai-beginner-tutorial/)  
-- è possibile che charGPT faccia chiamate all'API (https://sourajit16-02-93.medium.com/call-your-own-api-from-chatgpt-natural-language-to-action-47cbaf568b56)    
+- Assistant:
+- Function calling:
+    è uno dei tool a disposizione, fa si che chatGPT faccia chiamate all'API 
+    servono il doppio delle chiamate: una per valutare se serva la funzione, poi se serve il backend la chiama e invia i dati in una nuova richiesta
+    (https://sourajit16-02-93.medium.com/call-your-own-api-from-chatgpt-natural-language-to-action-47cbaf568b56)    
 - Fine Tuning:
     è possibile a pagamento, fornendo al modello i dati in JSONL su cui vogliamo allenarlo (tra i 10 e i 100 esempi) 
     prezzo: 100.000 token per 3 epoche: 2.40 $ 
