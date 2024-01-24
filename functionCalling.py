@@ -48,7 +48,7 @@ if dict(response_message).get('function_call'):
       model="gpt-3.5-turbo",
       messages=[
             {"role": "user", "content": request},
-            {"role": "assistant", "content": None, "function_call": {"name": "get_current_weather", "arguments": json.dumps(function_arguments)}},
+            {"role": "assistant", "content": None, "function_call": {"name": "get_data_from_DEMOAPI", "arguments": json.dumps(function_arguments)}},
             {"role": "function", "name": "get_data_from_DEMOAPI", "content": json.dumps(data)}
         ],
       functions=function_description
