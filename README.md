@@ -6,8 +6,8 @@ non c'è ancora memoria delle conversazioni -> ogni messaggio viene risposto ind
 per funzionare necessita di una chiave per l'API in un file .env
 
 ### Idee
-- con un assitente si può assegnare un thread ad ogni utente, in modo che il modello abbia taraccia delle conversazioni passate (https://serpapi.com/blog/assistant-api-openai-beginner-tutorial/)  
 - Assistant:
+    si può assegnare un thread ad ogni utente, in modo che il modello abbia taraccia delle conversazioni passate (https://serpapi.com/blog/assistant-api-openai-beginner-tutorial/)  
 - Function calling:
     è uno dei tool a disposizione, fa si che chatGPT faccia chiamate all'API 
     servono il doppio delle chiamate: una per valutare se serva la funzione, poi se serve il backend la chiama e invia i dati in una nuova richiesta
