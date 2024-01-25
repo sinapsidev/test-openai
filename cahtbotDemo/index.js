@@ -7,8 +7,7 @@ const app = express();
 // chiamata a chatGPT
 const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY
-}
-);
+});
 
 async function askChatGPT(content) {
     const completion = await openai.chat.completions.create({

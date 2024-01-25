@@ -1,40 +1,47 @@
-const OpenAI = require("openai");
 const express = require("express");
 const path = require("path");
 const cors = require("cors");
+const { askGPT, createThread, deleteThread } = require("./gptapi");
 const app = express();
- 
-// chiamata a chatGPT
-const openai = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY
-}
-);
 
-async function askChatGPT(content) {
-    const completion = await openai.chat.completions.create({
-        messages: [{ role: "system", content }],
-        model: "gpt-3.5-turbo",
-    });
-
-    console.log(completion.choices);
-    // if (completion.choices[0].finish_reason == 'stop')
-        return completion.choices[0].message.content;
-}
 
 // server
 app.use(express.json());
 app.use(cors());
-app.use(express.static(__dirname + '/client'));
+app.use(express.static(__dirname + '/../client'));
 
 
 // endpoints
-app.post("/chat", async (req, res) => {
+app.post("/askGPT", async (req, res) => {
     const { botReq } = req.body;
 
     try {
-        const msg = await askChatGPT(botReq);
+        const msg = await askGPT(botReq);
 
         res.status(200).json({ botRes: msg });
+
+    } catch (e) {
+        console.log('Error:' + e);
+    }
+});
+app.post("/createChat", async (req, res) => {
+    try {
+        const session_id = await createThread();
+
+        res.status(200).json({ session_id });
+
+    } catch (e) {
+        console.log('Error:' + e);
+    }
+});
+app.post("/deleteChat", async (req, res) => {
+    const { session_id } = req.body;
+
+    try {
+        if (await deleteThread(session_id))
+            res.status(200).send();
+        else
+            res.status(500).send();
 
     } catch (e) {
         console.log('Error:' + e);

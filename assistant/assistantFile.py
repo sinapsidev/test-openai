@@ -5,19 +5,14 @@ import json
 import time
 
 
-# def get_data_from_DEMOAPI():
-#     """fetch the api and returns data"""
-#     response_API = requests.get('https://6d69-93-149-39-162.ngrok-free.app/data')
-#     data = response_API.text
-#     return data
-
-
 client = OpenAI(
   api_key=os.environ['OPENAI_API_KEY'],
 )
 
-assistant_id = 'asst_wwLNZpXMlHIQYSFJR2EaJVOF'
+# assistant_id = 'asst_wwLNZpXMlHIQYSFJR2EaJVOF'    # Frank0
+assistant_id = 'asst_xkM3V2sEngbh8y1wvKw2WDRJ'  # O
 request = 'Give me an analyis of the data from the DEMOAPI'
+disclaimer = ' knowing that you can\'t make call to the API, but such data are contained in the file i have uploaded'
 
 
 def callFunction(functionName):
@@ -33,13 +28,13 @@ def createEntities(assistantId, userRequest):
     assistant = client.beta.assistants.retrieve(assistantId)
     thread = client.beta.threads.create()
     message = client.beta.threads.messages.create(
-        Thread.id,
+        thread.id,
         role="user",
         content=userRequest,
     )
     run = client.beta.threads.runs.create(
-        thread_id=Thread.id,
-        assistant_id=Assistant.id
+        thread_id=thread.id,
+        assistant_id=assistant.id
     )
     return (assistant, thread, run)
 
@@ -71,33 +66,43 @@ def assistantRequest(threadId, runId):
         if r.status == 'completed':
             done = True
             messages = client.beta.threads.messages.list(thread_id=threadId)
-
+            print(messages)
+            print(' ')
+            print(' ')
             chat = []
 
             for message in messages:
-                chat.push({message.role: message.content[0].text.value})
+                chat.append({message.role: message.content[0].text.value})
             return (False, chat.reverse())
     
         elif r.status == 'requires_action':
             if r.required_action.type == 'submit_tool_outputs':
+                print(client.beta.threads.messages.list(thread_id=threadId))
                 done = True
                 deleteRun(threadId, runId)
-
                 # for lista delle chiamate, nel nostro caso è una sola => non serve
-                return [r.required_action.submit_tool_outputs.tool_calls[0].function.name]
+                return (True, [r.required_action.submit_tool_outputs.tool_calls[0].function.name])
+        elif r.status == 'failed':
+            done = True
+            messages = client.beta.threads.messages.list(thread_id=threadId)
+            print(messages)
 
         time.sleep(0.500)
 
 def assistantFileRequest(threadId, userRequest):
+    path = os.path.join(os.getcwd(), "test-openai/assistant/datatestAPI/data.csv")
+    with open(path, 'rb') as file:
+        data = file.read()
     file = client.files.create(
-        file=open("./datatestAPI/data.csv", "rb"),
+        file=data,
         purpose='assistants'
     )
     message = client.beta.threads.messages.create(
         thread_id=threadId,
         role="user",
-        content=userRequest,
+        content=userRequest+disclaimer,
         file_ids=[file.id]
+        # file_ids=['file-Y384ns5dlaXNPp7Oy7hVJ9jV']
     )
     run = client.beta.threads.runs.create(
         thread_id=threadId,
@@ -113,28 +118,34 @@ def assistantFileRequest(threadId, userRequest):
 
         print(r.status)    
         if r.status == 'completed':
+            # done = True
+            messages = client.beta.threads.messages.list(thread_id=threadId)
+            print(messages)
+
+            # chat = []
+            # for message in messages:
+            #     chat.append({message.role: message.content[0].text.value})
+            # return chat.reverse()
+        elif r.status == 'failed':
             done = True
             messages = client.beta.threads.messages.list(thread_id=threadId)
+            print(messages)
 
-            chat = []
-            for message in messages:
-                chat.push({message.role: message.content[0].text.value})
-            return chat.reverse()
-    
         time.sleep(0.500)
 
 def returnChat(chat):
+    print('chat:')
     print(chat)
 
 (Assistant, Thread, Run) = createEntities(assistant_id, request)
-(requireFunction, chat) = assistantRequest(Run)
+(requireFunction, chat) = assistantRequest(Thread.id, Run.id)
 
-if requireFunction():
+if requireFunction:
     functionResults = []
     for func in chat:
-        functionResults.push(callFunction(func))
+        functionResults.append(callFunction(func))
 
-    chat = assistantFileRequest(request)
+    chat = assistantFileRequest(Thread.id, request)
     returnChat(chat)
 else:
     returnChat(chat)
