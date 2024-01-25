@@ -6,8 +6,14 @@ non c'è ancora memoria delle conversazioni -> ogni messaggio viene risposto ind
 per funzionare necessita di una chiave per l'API in un file .env
 
 ## Idee
+### customGPT:
+- con un account premium si può creare il propio GPT e dargli funzionalità extra, tra cui le chiamate all'API
+- non è possibile fare fine tuning, nè usare gli altri metodi, ma i prezzi sono ridotti e la knowledge base può cambiare dinamicamente
+    (https://help.openai.com/en/articles/8673914-gpts-vs-assistants)
 ### Assistant:
-- si può assegnare un thread ad ogni utente, in modo che il modello abbia taraccia delle conversazioni passate (https://serpapi.com/blog/assistant-api-openai-beginner-tutorial/)  
+- si può assegnare un thread ad ogni utente, in modo che il modello abbia taraccia delle conversazioni passate 
+- per fargli leggere dei file il costo è di 0.2$/GB per assistant per day
+    (https://serpapi.com/blog/assistant-api-openai-beginner-tutorial/)  
 ### Function calling:
 - è uno dei tool a disposizione, fa si che chatGPT faccia chiamate all'API 
 - servono il doppio delle chiamate: una per valutare se serva la funzione, poi se serve il backend la chiama e invia i dati in una nuova richiesta
