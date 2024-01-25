@@ -1,4 +1,4 @@
-const res = 'chatgpt response';
+let session_id = '';
 
 // fetch functions
 async function sendMessage() {
@@ -8,9 +8,10 @@ async function sendMessage() {
     if (message !== '') {
         appendMessage('user', message);
         // fa la richiesa al chatbot
+        messageInput.value = '';
         let res = await fetch('http://localhost:8000/askGPT', {
             method: 'POST',
-            body: JSON.stringify({ botReq: message }),
+            body: JSON.stringify({ botReq: message, session_id }),
             headers: {
                 "Content-Type": "application/json",
             },
@@ -18,14 +19,11 @@ async function sendMessage() {
 
         if (res.ok) {
             res = await res.json();
-
             appendMessage('bot', res.botRes);
-            messageInput.value = '';
         }
     }
 }
 
-let session_id = ''
 
 async function createChat() { 
     let res = await fetch('http://localhost:8000/createChat', {
@@ -75,7 +73,5 @@ function appendMessage(sender, text) {
 // events: 
 let sendBtn = document.getElementById('send-btn');
 sendBtn.addEventListener("click", async () => await sendMessage());
-
-// document.addEventListener("load", async () => await createChat());
-window.onload = async () => {await createChat(); console.log('ok')};
-document.addEventListener("beforeunload", async () => await deleteChat());
+window.onload = async () => await createChat();
+window.addEventListener("beforeunload", async () => await deleteChat());

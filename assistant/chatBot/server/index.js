@@ -13,15 +13,17 @@ app.use(express.static(__dirname + '/../client'));
 
 // endpoints
 app.post("/askGPT", async (req, res) => {
-    const { botReq } = req.body;
+    const { botReq, session_id } = req.body;
 
     try {
-        const msg = await askGPT(botReq);
+        const msg = await askGPT(botReq, session_id);
 
-        res.status(200).json({ botRes: msg });
-
+        if(msg)
+            res.status(200).json({ botRes: msg });
+        else
+            res.status(500).send();
     } catch (e) {
-        console.log('Error:' + e);
+        console.log(e);
     }
 });
 app.post("/createChat", async (req, res) => {
@@ -31,7 +33,7 @@ app.post("/createChat", async (req, res) => {
         res.status(200).json({ session_id });
 
     } catch (e) {
-        console.log('Error:' + e);
+        console.log(e);
     }
 });
 app.post("/deleteChat", async (req, res) => {
@@ -44,7 +46,7 @@ app.post("/deleteChat", async (req, res) => {
             res.status(500).send();
 
     } catch (e) {
-        console.log('Error:' + e);
+        console.log(e);
     }
 });
 
