@@ -1,10 +1,11 @@
 const OpenAI = require("openai");
-
+require('dotenv').config();
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 let assistant_id = 'asst_xkM3V2sEngbh8y1wvKw2WDRJ';
 let sessions = {}
 
+console.log(process.env.OPENAI_API_KEY)
 
 module.exports.askGPT = async (user_request, session_id) => {
     thread_id = sessions[session_id];
