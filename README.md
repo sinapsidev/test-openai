@@ -7,6 +7,7 @@ per funzionare necessita di una chiave per l'API in un file .env
 
 ## Idee
 ### customGPT:
+- non hanno un API per interagirci, ma si possono hostare con servizi terzi
 - con un account premium si può creare il propio GPT e dargli funzionalità extra, tra cui le chiamate all'API
 - non è possibile fare fine tuning, nè usare gli altri metodi, ma i prezzi sono ridotti e la knowledge base può cambiare dinamicamente   
     (https://help.openai.com/en/articles/8673914-gpts-vs-assistants)

@@ -5,14 +5,13 @@ import json
 import time
 
 
-def get_data_from_DEMOAPI():
-    """fetch the api and returns data"""
-    response_API = requests.get('https://6d69-93-149-39-162.ngrok-free.app/data')
-    data = response_API.text
-    return data
+# def get_data_from_DEMOAPI():
+#     """fetch the api and returns data"""
+#     response_API = requests.get('https://6d69-93-149-39-162.ngrok-free.app/data')
+#     data = response_API.text
+#     return data
 
 
-# gpt response
 client = OpenAI(
   api_key=os.environ['OPENAI_API_KEY'],
 )
@@ -20,114 +19,130 @@ client = OpenAI(
 assistant_id = 'asst_wwLNZpXMlHIQYSFJR2EaJVOF'
 request = 'Give me an analyis of the data from the DEMOAPI'
 
-# Creazione delle entità
-Assistant = client.beta.assistants.create(
-  instructions="You are a customer support chatbot. Use your knowledge base to best respond to customer queries.",
-  model="gpt-4-1106-preview",
-  tools=[{"type": "retrieval"}]
-)
-Thread = client.beta.threads.create()
-File = client.files.create(
-    file=open("./datatestAPI/data.csv", "rb"),
-    purpose='assistants'
-)
-Message = client.beta.threads.messages.create(
-  Thread.id,
-  role="user",
-  content=request,
-  file_ids=[File.id]
-)
-Run = client.beta.threads.runs.create(
-  thread_id=Thread.id,
-  assistant_id=Assistant.id
-#   instructions=""
-)
 
-# Polling 
-done = False
-while not done:
-    run = client.beta.threads.runs.retrieve(
-        thread_id=Thread.id,
-        run_id=Run.id
+def callFunction(functionName):
+    if functionName == 'get_data_from_DEMOAPI':
+        return ' '
+
+def createEntities(assistantId, userRequest):
+    # assistant = client.beta.assistants.create(
+    #     instructions="You are a customer support chatbot. Use your knowledge base to best respond to customer queries.",
+    #     model="gpt-4-1106-preview",
+    #     tools=[{"type": "retrieval"}]
+    # )
+    assistant = client.beta.assistants.retrieve(assistantId)
+    thread = client.beta.threads.create()
+    message = client.beta.threads.messages.create(
+        Thread.id,
+        role="user",
+        content=userRequest,
     )
-    print(run.status)    
-    if run.status == 'completed':
-        done = True
-        messages = client.beta.threads.messages.list(
-            thread_id=Thread.id
-        )
+    run = client.beta.threads.runs.create(
+        thread_id=Thread.id,
+        assistant_id=Assistant.id
+    )
+    return (assistant, thread, run)
 
-        # stampa la chat
-        iter_messages = iter(messages)
-        def reversePrint(iterator):
-            message = next(iter_messages, '-1')
-            if(not message == '-1'):
-                reversePrint(iter_messages)
-                print(message.role+':')
-                print(message.content[0].text.value)
-            
-        reversePrint(iter_messages)
+def deleteRun(threadId, runId):
+    run = client.beta.threads.runs.cancel(
+        thread_id=threadId,
+        run_id=runId
+    )
+    # check
+    assert run.id == runId
+
+def deleteEntities(threadId, runId):
+    response = client.beta.threads.delete(Thread.id)
+    run = client.beta.threads.runs.cancel(
+        thread_id=threadId,
+        run_id=runId
+    )
+    # check
+    assert response.id == threadId
+    assert run.id == runId
+
+def assistantRequest(threadId, runId):
+    # Polling 
+    done = False
+    while not done:
+        r = client.beta.threads.runs.retrieve(thread_id=threadId, run_id=runId)
+
+        print(r.status)    
+        if r.status == 'completed':
+            done = True
+            messages = client.beta.threads.messages.list(thread_id=threadId)
+
+            chat = []
+
+            for message in messages:
+                chat.push({message.role: message.content[0].text.value})
+            return (False, chat.reverse())
     
-    elif run.status == 'requires_action':
-        if run.required_action.type == 'submit_tool_outputs':
-            # for lista delle chiamate, nel nostro caso è una sola => non serve
-            print(run.required_action.submit_tool_outputs.tool_calls[0].function.name)
-                        
-            run = client.beta.threads.runs.submit_tool_outputs(
-                thread_id=Thread.id,
-                run_id=Run.id,
-                tool_outputs=[
-                    {
-                        "tool_call_id": run.required_action.submit_tool_outputs.tool_calls[0].id,
-                        "output": data,
-                    }
-                ]
-            )
-    time.sleep(0.500)
+        elif r.status == 'requires_action':
+            if r.required_action.type == 'submit_tool_outputs':
+                done = True
+                deleteRun(threadId, runId)
 
-response = client.beta.threads.delete(Thread.id)
+                # for lista delle chiamate, nel nostro caso è una sola => non serve
+                return [r.required_action.submit_tool_outputs.tool_calls[0].function.name]
 
-# check
-assert response.id == Thread.id
+        time.sleep(0.500)
+
+def assistantFileRequest(threadId, userRequest):
+    file = client.files.create(
+        file=open("./datatestAPI/data.csv", "rb"),
+        purpose='assistants'
+    )
+    message = client.beta.threads.messages.create(
+        thread_id=threadId,
+        role="user",
+        content=userRequest,
+        file_ids=[file.id]
+    )
+    run = client.beta.threads.runs.create(
+        thread_id=threadId,
+        assistant_id=Assistant.id
+    )
+
+    runId = run.id
+
+    # Polling 
+    done = False
+    while not done:
+        r = client.beta.threads.runs.retrieve(thread_id=threadId, run_id=runId)
+
+        print(r.status)    
+        if r.status == 'completed':
+            done = True
+            messages = client.beta.threads.messages.list(thread_id=threadId)
+
+            chat = []
+            for message in messages:
+                chat.push({message.role: message.content[0].text.value})
+            return chat.reverse()
+    
+        time.sleep(0.500)
+
+def returnChat(chat):
+    print(chat)
+
+(Assistant, Thread, Run) = createEntities(assistant_id, request)
+(requireFunction, chat) = assistantRequest(Run)
+
+if requireFunction():
+    functionResults = []
+    for func in chat:
+        functionResults.push(callFunction(func))
+
+    chat = assistantFileRequest(request)
+    returnChat(chat)
+else:
+    returnChat(chat)
+
+
 
 """
 Output:
 
-in_progress
-in_progress
-get_data_from_API
-queued
-in_progress
-in_progress
-in_progress
-in_progress
-in_progress
-in_progress
-in_progress
-in_progress
-in_progress
-in_progress
-in_progress
-in_progress
-in_progress
-in_progress
-in_progress
-in_progress
-in_progress
-in_progress
-in_progress
-in_progress
-completed
-user:
-Give me an analyis of the data from the DEMOAPI
-assistant:
-Here is an analysis of the data from the DEMOAPI:
 
-- There are 10 entries in the data.
-- The data includes information about various interventions, such as "Sostituzione Viti Ralla" (Replacement of Rail Bolts) and "Riparazione Elettrica" (Electrical Repair).
-- Each intervention has details such as duration, location, start and end dates, object model, and urgency level.
-- The interventions are associated with different clients and locations.
-- The data also includes additional information such as order details, urgency level, and customer orders.
-
-Please let me know if you need any further analysis or specific information from the data.
 """
