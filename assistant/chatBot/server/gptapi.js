@@ -1,15 +1,22 @@
 const OpenAI = require("openai");
-require('dotenv').config();
+// require('dotenv').config();
 const fs = require('fs');
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-// const openai = new OpenAI({ apiKey: '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' });
-let assistant_id = 'asst_WZjTVTFa3byJBgVb8eQk9eZR';
-let assistantF_id = 'asst_xkM3V2sEngbh8y1wvKw2WDRJ';
+
+
+// let assistant_id = 'asst_WZjTVTFa3byJBgVb8eQk9eZR';
+// let assistantF_id = 'asst_xkM3V2sEngbh8y1wvKw2WDRJ';
+let assistant_id = 'asst_AfIc6aOs45xg3UQwcghIFRQV';
+let assistantF_id = 'asst_TjvaVFau8jPVBTohUkJ4aDUl';
+
 let sessions = {};
 let uploaded_files = {
     'data.json': 'file-mHXZi8FI6bGdrqnoxIbZTqeG',
     // 'data1.json': ''
+
+    // 'data.json': 'file-WwlI5rdDcX60n7615BllSdZE',
+    // 'data1.json': 'file-ZWjDwLrAMs0Fq8ASxQLHRtqe',
 };
 
 
@@ -113,7 +120,7 @@ const getResponse = async (thread_id, run_id, user_request) => {
 const getOutput = async (function_name) => {
     return output = {
         type: 'file',
-        file: fs.createReadStream("../../datatestAPI/data1.json")
+        file: fs.createReadStream("../../datatestAPI/data.json")
     }
 }
 
@@ -127,7 +134,7 @@ const isFileCached = (file_name) => {
 const askFileAssistant = async (user_request, output_file) => {
     // const redirection = `Answer the following request knowing that the data you need are contained in the file i have uploaded rather than in the API: '${user_request}'`;
     const redirection = ". Know that the data you need are contained in the file i have uploaded rather than in the API";
-    const file_name = 'data1.json';
+    const file_name = 'data.json';
     let file = {}
     file.id = isFileCached(file_name)
     if (!file.id) {
@@ -151,7 +158,6 @@ const askFileAssistant = async (user_request, output_file) => {
             role: "user",
             content: user_request + redirection,
             file_ids: [file.id],
-            // file_ids: ["file-A35gVOa4DpZfo3B86cS41QaB"]
         }
     );
 
@@ -159,7 +165,7 @@ const askFileAssistant = async (user_request, output_file) => {
         thread.id,
         { assistant_id: assistantF_id }
     );
-    // console.log(file)
+
     do {
         run = await openai.beta.threads.runs.retrieve(thread.id, run.id);
         console.log(run.status)
