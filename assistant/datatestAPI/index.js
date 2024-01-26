@@ -10,7 +10,7 @@ app.use(cors());
 
 app.get("/data", async (req, res) => {
     try {
-        res.sendFile(path.join(__dirname + '/data.csv'));
+        res.sendFile(path.join(__dirname + '/data1.csv'));
     } catch (e) {
         console.log('Error:' + e);
     }
