@@ -1,4 +1,6 @@
 let session_id = '';
+const server_url = 'http://localhost:8080';
+const loader = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" class="h-10 w-10 text-sky-600"><circle fill = "none" stroke-opacity="1" stroke = "#0284C7" stroke - width=".5" cx = "100" cy = "100" r = "0" ><animate attributeName="r" calcMode="spline" dur="2" values="1;80" keyTimes="0;1" keySplines="0 .2 .5 1"repeatCount="indefinite"></animate><animate attributeName="stroke-width" calcMode="spline" dur="2" values="0;25" keyTimes="0;1"keySplines="0 .2 .5 1" repeatCount="indefinite"></animate><animate attributeName="stroke-opacity" calcMode="spline" dur="2" values="1;0" keyTimes="0;1"keySplines="0 .2 .5 1" repeatCount="indefinite"></animate></ ></svg > ';
 
 // fetch functions
 async function sendMessage() {
@@ -7,9 +9,10 @@ async function sendMessage() {
 
     if (message !== '') {
         appendMessage('user', message);
+        appendMessage('bot', ' ', loader);
         // fa la richiesa al chatbot
         messageInput.value = '';
-        let res = await fetch('http://localhost:8000/askGPT', {
+        let res = await fetch(server_url + '/askGPT', {
             method: 'POST',
             body: JSON.stringify({ botReq: message, session_id }),
             headers: {
@@ -19,14 +22,17 @@ async function sendMessage() {
 
         if (res.ok) {
             res = await res.json();
+            deleteMessage();
             appendMessage('bot', res.botRes);
         }
+        else 
+            deleteMessage();
     }
 }
 
 
-async function createChat() { 
-    let res = await fetch('http://localhost:8000/createChat', {
+async function createChat() {
+    let res = await fetch(server_url + '/createChat', {
         method: 'POST'
     })
 
@@ -37,7 +43,7 @@ async function createChat() {
 }
 
 async function deleteChat() {
-    let res = await fetch('http://localhost:8000/deleteChat', {
+    let res = await fetch(server_url + '/deleteChat', {
         method: 'POST',
         body: JSON.stringify({ session_id }),
         headers: {
@@ -56,7 +62,7 @@ const bot_msg_classes = "bot-message w-full my-0.5 flex justify-start"
 const user_inner_msg_classes = "w-fit max-w-[80vw] bg-sky-600 mr-2 px-4 py-2 rounded-xl"
 const bot_inner_msg_classes = "w-fit max-w-[80vw] bg-gray-100 ml-2 px-4 py-2 rounded-xl"
 
-function appendMessage(sender, text) {
+function appendMessage(sender, text, html = '') {
     let chatMessages = document.getElementById('chat-messages');
     let messageDiv = document.createElement('div');
     messageDiv.className = sender === 'user' ? user_msg_classes : bot_msg_classes;
@@ -64,9 +70,15 @@ function appendMessage(sender, text) {
     let innerDiv = document.createElement('div');
     innerDiv.className = sender === 'user' ? user_inner_msg_classes : bot_inner_msg_classes;
     innerDiv.innerText = text;
+    // innerDiv.innerHtml = html;
+    innerDiv.insertAdjacentHTML( 'beforeend', html)
     messageDiv.appendChild(innerDiv);
 
     chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+function deleteMessage() {
+    const element = document.querySelector('#chat-messages > div:last-of-type ');
+    element.remove();
 }
 
 

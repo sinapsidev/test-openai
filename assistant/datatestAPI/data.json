@@ -1,0 +1,8 @@
+{
+    "name": "client001",
+    "type": "clent",
+    "info": {
+        "phone":"0003107010",
+        "email":"client001@mail.com"
+    }
+}
