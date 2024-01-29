@@ -6,41 +6,39 @@ async function main() {
         token: process.env.SUPERAGENT_API_KEY
     })
 
-    // const { data: llm } = await client.llm.create({
-    //     provider: "OPENAI",
-    //     apiKey: process.env.OPENAI_API_KEY
-    // })
-
-    const { data: agent } = await client.agent.create({
-        name: "API fetcher",
-        description: "An Assistant that has access to the API",
-        avatar: "https://mylogo.com/logo.png", // Replace with a real image
-        isActive: true,
-        llmModel: "GPT_3_5_TURBO_16K_0613",
-        initialMessage: "Hi there, how can I help you?",
-        prompt: `You are a helpful ai assistant. Whenever the user wants data from DEMOAPI you should make an http request to: 
-URL: https://3129-93-149-39-162.ngrok-free.app/data
-Method: GET
-and provide the result to the user`
+    const { data: llm } = await client.llm.create({
+        provider: "OPENAI",
+        apiKey: process.env.OPENAI_API_KEY
     })
-    // const agent = { id: '02cea05c-015f-4fbd-81f7-f495f1726b01' }
+
+    // const { data: agent } = await client.agent.create({
+    //     name: "API fetcher",
+    //     description: "An Assistant that has access to the API",
+    //     avatar: "https://mylogo.com/logo.png", // Replace with a real image
+    //     isActive: true,
+    //     llmModel: "GPT_3_5_TURBO_16K_0613",
+    //     initialMessage: "Hi there, how can I help you?",
+    //     prompt: `You are a helpful ai assistant. You can make HTTP requests.`
+    //     // Whenever the user wants data from DEMOAPI you should make an http GET request to: URL: https://3129-93-149-39-162.ngrok-free.app`
+    // })
+    const agent = { id: '2456b8ad-2930-41b0-ae11-e5dbe184ba57' }
 
     const { data: tool } = await client.tool.create({
-        name: "http request to DEMOAPI",
-        description: "useful for returning data from DEMOAPI.",
+        name: "http request",
+        description: "useful for returning data from a url.",
         type: "HTTP",
         returnDirect: false,
-        metadata: {
-            headers: {
-                authorizations: '',
-                apikey: ''
-            }
-        }
+        // metadata: {
+        //     headers: {
+        //         authorizations: '',
+        //         apikey: ''
+        //     }
+        // }
     })
 
-    // await client.agent.addLlm(agent.id, {
-    //     llmId: llm.id
-    // })
+    await client.agent.addLlm(agent.id, {
+        llmId: llm.id
+    })
 
     await client.agent.addTool(agent.id, {
         toolId: tool.id
@@ -49,9 +47,10 @@ and provide the result to the user`
     console.log('starting prediction')
 
     const { data: prediction } = await client.agent.invoke(agent.id, {
-        input: "get me the data from DEMOAPI",
+        input: "get me the data from the DEMOAPI",
         enableStreaming: true,
         sessionId: "my_session_id",
+        llm_params: { "temperature": 0.0 }
     })
 
     console.log(prediction.output)

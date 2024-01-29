@@ -7,10 +7,20 @@ const PORT = 80;
 app.use(express.json());
 app.use(cors());
 
+app.use(express.static(__dirname + '/resources'));
 
+
+
+app.get("/file", async (req, res) => {
+    try {
+        res.sendFile(path.join(__dirname + '/resources/data1.json'));
+    } catch (e) {
+        console.log('Error:' + e);
+    }
+});
 app.get("/data", async (req, res) => {
     try {
-        res.sendFile(path.join(__dirname + '/data1.csv'));
+        res.json({name: "weather", type:"API"});
     } catch (e) {
         console.log('Error:' + e);
     }
