@@ -5,6 +5,7 @@
 - chatbotDemo: applicazione web che implementa un chatbot usando chatGPT con la possibilità di interagire con API  
     non c'è ancora memoria delle conversazioni -> ogni messaggio viene risposto indipendentemente dagli altri
 - fineTuning: file per fare il fine tuning di un modello di openai
+- superagent: script per usare l'api messa a disposizione del framework superagentai
 
 gli script per funzionare necessitano di una chiave per l'API
 
