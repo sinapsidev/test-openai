@@ -7,7 +7,7 @@ const PORT = 80;
 app.use(express.json());
 app.use(cors());
 
-app.use(express.static(__dirname + '/resources'));
+app.use(express.static(__dirname + '/resources/logica'));
 
 
 

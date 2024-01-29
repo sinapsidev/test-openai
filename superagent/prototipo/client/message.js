@@ -85,5 +85,5 @@ function deleteMessage() {
 // events: 
 let sendBtn = document.getElementById('send-btn');
 sendBtn.addEventListener("click", async () => await sendMessage());
-window.onload = async () => await createChat();
-window.addEventListener("beforeunload", async () => await deleteChat());
+// window.onload = async () => await createChat();
+// window.addEventListener("beforeunload", async () => await deleteChat());

@@ -1,0 +1,10 @@
+https://logicaweb.snps.it/api/v2/1/data/vista-scheda-rows/${IDVISTA}?limit=15000&offset=0&idRecord=${IDADDETTO}
+
+Ruoli: 10060
+Rapporti:  10024
+Presenze: 10074, 10075, 10106
+Buste Paga: 10028
+Risconoscimenti: 10375
+Dotazioni: 103, 78, 82
+Rimborsi: 10173 
+Non conformità: 10340 

@@ -1,0 +1,77 @@
+{
+    "baseUrl": "https://3d01-93-149-39-162.ngrok-free.app/${idVista}.json",
+    "urls": [
+        {
+            "name": "ruoli",
+            "parameters": {
+                "idVista": 10060
+            }
+        },
+        {
+            "name": "rapporti",
+            "parameters": {
+                "idVista": 10024
+            }
+        },
+        {
+            "name": "presenze_1",
+            "parameters": {
+                "idVista": 10074
+            }
+        },
+        {
+            "name": "presenze_2",
+            "parameters": {
+                "idVista": 10075
+            }
+        },
+        {
+            "name": "presenze_3",
+            "parameters": {
+                "idVista": 10106
+            }
+        },
+        {
+            "name": "buste paga",
+            "parameters": {
+                "idVista": 10028
+            }
+        },
+        {
+            "name": "riconoscimenti",
+            "parameters": {
+                "idVista": 10375
+            }
+        },
+        {
+            "name": "dotazioni_1",
+            "parameters": {
+                "idVista": 103
+            }
+        },
+        {
+            "name": "dotazioni_2",
+            "parameters": {
+                "idVista": 78
+            }
+        },
+        {
+            "name": "dotazioni_3",
+            "parameters": {
+                "idVista": 82
+            }
+        },
+        {
+            "name": "rimborsi",
+            "parameters": {
+                "idVista": 10173
+            }
+        },
+        {
+            "name": "non conformità",
+            "parameters": {
+                "idVista": 10340
+            }
+        }
+    ]    
+}

@@ -1,0 +1,52 @@
+{
+    "urls": [
+        {
+            "name": "ruoli",
+            "url": "https://3d01-93-149-39-162.ngrok-free.app/10060.json"
+        },
+        {
+            "name": "rapporti",
+            "url": "https://3d01-93-149-39-162.ngrok-free.app/10024.json"
+        },
+        {
+            "name": "presenze_1",
+            "url": "https://3d01-93-149-39-162.ngrok-free.app/10074.json"
+        },
+        {
+            "name": "presenze_2",
+            "url": "https://3d01-93-149-39-162.ngrok-free.app/10075.json"
+        },
+        {
+            "name": "presenze_3",
+            "url": "https://3d01-93-149-39-162.ngrok-free.app/10106.json"
+        },
+        {
+            "name": "buste paga",
+            "url": "https://3d01-93-149-39-162.ngrok-free.app/10028.json"
+        },
+        {
+            "name": "riconoscimenti",
+            "url": "https://3d01-93-149-39-162.ngrok-free.app/10375.json"
+        },
+        {
+            "name": "dotazioni_1",
+            "url": "https://3d01-93-149-39-162.ngrok-free.app/103.json"
+        },
+        {
+            "name": "dotazioni_2",
+            "url": "https://3d01-93-149-39-162.ngrok-free.app/78.json"
+        },
+        {
+            "name": "dotazioni_3",
+            "url": "https://3d01-93-149-39-162.ngrok-free.app/82.json"
+        },
+        {
+            "name": "rimborsi",
+            "url": "https://3d01-93-149-39-162.ngrok-free.app/10173.json"
+        },
+        {
+            "name": "non conformità",
+            "url": "https://3d01-93-149-39-162.ngrok-free.app/10340.json"
+        }
+    ]    
+}

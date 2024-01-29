@@ -1,7 +1,7 @@
 const express = require("express");
 const path = require("path");
 const cors = require("cors");
-const { askGPT, createThread, deleteThread } = require("./gptapi");
+const { askGPT, createThread, deleteThread } = require("./superagentapi");
 const app = express();
 
 

@@ -1,0 +1,32 @@
+[
+    {
+        "ID": 35,
+        "identificativo": ". Alessandro 18/11/2019 ",
+        " ID sede": 5,
+        "sede": ".",
+        " ID addetto": 15,
+        "addetto": ". Alessandro",
+        "inizio": "2019-11-18T00:00:00+01:00",
+        "fine": null,
+        " ID tipo": 7,
+        "tipo": "Dipendente",
+        "matricola": "16",
+        "codice": "16",
+        "presenze addetti": true,
+        "straord diurno max giorn feriale": 16.00,
+        "straord diurno max giorn sabato": 16.00,
+        "straord diurno max giorn festivo": 16.00,
+        "straord diurno max sett": 48.00,
+        "straord notturno max giorn": 16.00,
+        "straord notturno max sett": 48.00,
+        "magg notturno": 0.00,
+        "unione viaggio a lavoro": false,
+        "trasf esente": true,
+        "tipo esubero": "esubero normale",
+        "straord a forfait": false,
+        " ID società": 1,
+        "società": "Sinapsi SB srl",
+        " RecordValido ": 1,
+        "Row": 1
+    }
+]
