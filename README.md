@@ -9,6 +9,12 @@
 gli script per funzionare necessitano di una chiave per l'API
 
 ## Idee
+### superagent:
+- framework per la creazione di assistenti AI
+- alternativa opensource, free e con possibilità di hostarla privatamente di openai assistant
+- mette a disposizione molti strumenti tra cui quelli per fetchare URL 
+- permettere di connettere altr istrumenti, tra cui DB per fare RAG (weaviate, supabase)
+    (https://medium.com/@muhilvarnan.v/building-a-rag-based-customer-support-ai-bot-in-a-distributed-domain-teams-e31ab1527790)
 ### customGPT:
 - non hanno un API per interagirci, ma si possono hostare con servizi terzi
 - con un account premium si può creare il propio GPT e dargli funzionalità extra, tra cui le chiamate all'API
