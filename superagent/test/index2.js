@@ -13,66 +13,60 @@ async function main() {
     // })
 
     // const { data: agent } = await client.agent.create({
-    //     name: "Logica API",
-    //     description: "This agent answer questions with info from logica",
+    //     name: "Stock Assistant",
+    //     description: "Useful for answering questions about a specific stock",
     //     avatar: "https://mylogo.com/logo.png", // Replace with a real image
     //     isActive: true,
-    //     llmModel: "GPT_3_5_TURBO_0613",
-    //     initialMessage: `.`,
-    //     prompt: "Use the Logica API to answer questions"
+    //     llmModel: "GPT_3_5_TURBO_16K_0613",
+    //     initialMessage: "Hi there, how can I help you?",
+    //     prompt: "Use the Stock API to answer the users question."
     // })
-    const agent = { id: '79a48765-9577-4ec9-ac7e-bc67f07a1368' }
 
+    // // Your custom tool
     // const { data: tool } = await client.tool.create({
-    //     name: "API_fetcher",
-    //     description: "Useful to get response from the API",
+    //     name: "Stock API",
+    //     description: "Useful for answering questions about a specific stock",
     //     type: "FUNCTION",
     //     returnDirect: false,
     //     metadata: {
-    //         functionName: "fetchApiUrl",
+    //         functionName: "get_stock",
     //         args: {
-    //             "idVista": {
-    //                 "type": "number",
-    //                 "description": "The id of the view you need"
-    //             },
-    //             "idAgente": {
-    //                 "type": "number",
-    //                 "description": "The id of the user"
+    //             ticker: {
+    //                 type: "string",
+    //                 description: "The stock ticker to search for"
     //             }
     //         }
     //     }
-    // })
-
-    // await client.agent.addLlm(agent.id, {
-    //     llmId: llm.id
     // })
 
     // await client.agent.addTool(agent.id, {
     //     toolId: tool.id
     // })
 
+    // await client.agent.addLlm(agent.id, {
+    //     llmId: llm.id
+    // })
 
+    const agent = { id: 'b3e486c7-26a2-4f58-ae13-e91d9d58f9fc' }
 
-    console.log('starting prediction');
     const { data: prediction } = await client.agent.invoke(agent.id, {
-        enableStreaming: false,
-        input: "Dammi le presenze dall'api di logica",
+        enableStreaming: true,
+        // input: "What's a stock?",
+        input: "What's the current stock price of Apple?",
         sessionId: "my_session_id"
     })
-    console.log('ok')
 
     const output = prediction.output
     const steps = prediction.intermediate_steps
-    
 
     // Implementation of the getStock function
-    function API_fetcher({ ticker }) {
+    function getStock({ ticker }) {
         console.log(`Getting stock information for ${ticker}`);
     };
 
     // Create a tool dispatch mapping
     const toolDispatch = {
-        "API_fetcher": API_fetcher,
+        "get_stock": getStock,
         // Add more tools here as needed
     };
 
@@ -81,6 +75,7 @@ async function main() {
         steps.forEach(([item, _]) => {
             const toolName = item.tool;
             const toolFunction = toolDispatch[toolName];
+
             if (toolFunction) {
                 const toolInput = item.tool_input || {};
                 toolFunction(toolInput);
@@ -90,33 +85,12 @@ async function main() {
         });
     };
 
+    console.log('ok')
+
     // Run your custom tool/function
     handleToolActions(steps);
 
-    /* Workflow */
-    // const {data: workflow} = await client.workflow.create({
-    //     name: "chatbot",
-    //     description: "...",
-    // })
-    // const workflow = { id: 'd860548a-7fb2-4e20-9ec3-69d3a4154512' }
-    // const workflow = { id: '2e3fda9a-bfff-4add-8cb2-79b70df889c6' }
-
-    // const { data: step1 } = await client.workflow.addStep(workflow.id, {
-    //     agentId: agent1.id,
-    //     order: 0
-    // })
-
-    // const { data: step2 } = await client.workflow.addStep(workflow.id, {
-    //     agentId: agent2.id,
-    //     order: 1
-    // })
-
-    // const response = await client.agent.invoke(workflow.id, {
-    //     enableStreaming: false,
-    //     input: "Quali sono le presenze da 8 ore?",
-    // })
-    // console.log(response)
-
+    console.log(output)
+    console.log(steps)
 }
-
 main();

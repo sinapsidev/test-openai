@@ -1,23 +1,18 @@
-const OpenAI = require("openai");
-// require('dotenv').config();
+const OpenAI = require('openai');
 const fs = require('fs');
+const { LogicaLogin, LogicaFetch } = require('./logicaAPI');
+const { threadId } = require('worker_threads');
+
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-
-// let assistant_id = 'asst_WZjTVTFa3byJBgVb8eQk9eZR';
-// let assistantF_id = 'asst_xkM3V2sEngbh8y1wvKw2WDRJ';
-let assistant_id = 'asst_AfIc6aOs45xg3UQwcghIFRQV';
-let assistantF_id = 'asst_TjvaVFau8jPVBTohUkJ4aDUl';
+let assistant_id = 'asst_WZjTVTFa3byJBgVb8eQk9eZR';
+let assistantF_id = 'asst_xkM3V2sEngbh8y1wvKw2WDRJ';
 
 let sessions = {};
-let uploaded_files = {
-    'data.json': 'file-mHXZi8FI6bGdrqnoxIbZTqeG',
-    // 'data1.json': ''
-
-    // 'data.json': 'file-WwlI5rdDcX60n7615BllSdZE',
-    // 'data1.json': 'file-ZWjDwLrAMs0Fq8ASxQLHRtqe',
-};
+// let uploaded_files = {
+//     '10173.json': 'file-YXt8OlSNfN7OwsiZAZ8s0UuN',
+// };
 
 
 module.exports.askGPT = async (user_request, session_id) => {
@@ -46,7 +41,11 @@ module.exports.createThread = async () => {
     thread = await openai.beta.threads.create();
     session_id = crypto.randomUUID();
     sessions[session_id] = thread.id;
+    deleteFiles(thread.id);
     console.log("thread created for: " + session_id);
+
+    if (!LogicaLogin()) throw new Error('Cannot Login');
+
     return session_id;
 }
 
@@ -61,14 +60,32 @@ module.exports.deleteThread = async (session_id) => {
     else return false;
 }
 
+// const deleteAllThreads = async (session_id) => {
+//     console.log(sessions)
+//     for (session in Object.keys(sessions)) {
+//         if (sessions[session_id] !== '')
+//             await openai.beta.threads.del(sessions[session]);
+//     }
+// }
 
-const deleteAllThreads = async (session_id) => {
-    console.log(sessions)
-    for (session in Object.keys(sessions)) {
-        if (sessions[session_id] !== '')
-            await openai.beta.threads.del(sessions[session]);
+const deleteFiles = async (threadId) => {
+    const list = await openai.files.list();
+    for await (const file of list) {
+        await openai.files.del(file.id);
+    }
+
+    const assistantFiles = await openai.beta.assistants.files.list(
+        assistantF_id
+    );
+
+    for await (const file of assistantFiles.data) {
+        await openai.beta.assistants.files.del(
+            assistantF_id,
+            file.id
+        );
     }
 }
+
 
 const sleep = (delay) => new Promise((resolve) => setTimeout(resolve, delay))
 
@@ -97,13 +114,12 @@ const getResponse = async (thread_id, run_id, user_request) => {
         }
         /* la run ha bisogno dell'output di una funzione */
         else if (run.status === 'requires_action' && run.required_action.type == 'submit_tool_outputs') {
-            const output = await getOutput(run.required_action.submit_tool_outputs.tool_calls[0].function.name);
+// console.log(run.required_action.submit_tool_outputs.tool_calls.length);
+            const output = await getOutput(run.required_action.submit_tool_outputs.tool_calls[0].function.name, run.required_action.submit_tool_outputs.tool_calls[0].function.arguments);
+
             if (output.type === 'file') {
                 await openai.beta.threads.runs.cancel(thread_id, run.id);
-                return await askFileAssistant(user_request, output.file);
-
-                // await sendFile(thread_id, output.file, user_request);
-                // run = await openai.beta.threads.runs.create(thread_id, { assistant_id });
+                return await askFileAssistant(user_request, output.file, output.name);
             }
             else
                 await sendOutput(thread_id, run.id, run.required_action.submit_tool_outputs.tool_calls[0].id, output.text);
@@ -116,40 +132,47 @@ const getResponse = async (thread_id, run_id, user_request) => {
     return false;
 }
 
+const getAgentId = () => { return 15 }
+
 /* prende i risultati delle ciamate all' API, per ora legge un file */
-const getOutput = async (function_name) => {
-    return output = {
-        type: 'file',
-        file: fs.createReadStream("../../datatestAPI/data.json")
+const getOutput = async (function_name, function_args) => {
+    let parameters = JSON.parse(function_args);
+    parameters = Object.keys(parameters).map((key) => parameters[key]);
+    let output = {};
+    console.log(parameters)
+    if (function_name === 'logica_fetch') {
+        output = LogicaFetch(parameters[0], getAgentId());
     }
+
+    return output;
 }
 
-const isFileCached = (file_name) => {
-    const file_id = uploaded_files[file_name]
-    if (file_id) return file_id;
-    else return false;
-}
+// const isFileCached = (file_name) => {
+//     const file_id = uploaded_files[file_name]
+//     if (file_id) return file_id;
+//     else return false;
+// }
 
 /* forward the request to the assistant F */
-const askFileAssistant = async (user_request, output_file) => {
+const askFileAssistant = async (user_request, output_file, file_name) => {
+    console.log('--------')
     // const redirection = `Answer the following request knowing that the data you need are contained in the file i have uploaded rather than in the API: '${user_request}'`;
     const redirection = ". Know that the data you need are contained in the file i have uploaded rather than in the API";
-    const file_name = 'data.json';
     let file = {}
-    file.id = isFileCached(file_name)
-    if (!file.id) {
-        file = await openai.files.create({
-            file: output_file,
-            purpose: "assistants"
-        });
-        uploaded_files[file_name] = file.id;
-        await openai.beta.assistants.files.create(
-            assistantF_id,
-            {
-                file_id: file.id
-            }
-        );
-    }
+    // file.id = isFileCached(file_name)
+    // if (!file.id) {
+    file = await openai.files.create({
+        file: output_file,
+        purpose: "assistants"
+    });
+    // uploaded_files[file_name] = file.id;
+    await openai.beta.assistants.files.create(
+        assistantF_id,
+        {
+            file_id: file.id
+        }
+    );
+    // }
 
     const thread = await openai.beta.threads.create();
     await openai.beta.threads.messages.create(
@@ -195,17 +218,17 @@ const sendFile = async (thread_id, output_file, user_request) => {
     // TODO
 
     /* else uploads it */
-    // const file = await openai.files.create({
-    //     file: output_file,
-    //     purpose: "assistants"
-    // });
+    const file = await openai.files.create({
+        file: output_file,
+        purpose: "assistants"
+    });
     const message = await openai.beta.threads.messages.create(
         thread_id,
         {
             role: "user",
             content: user_request + redirection,
-            // file_ids: [file.id]
-            file_ids: ["file-ESP1Mh54l8iPCkMF610Zrdjo"]
+            file_ids: [file.id]
+            // file_ids: ["file-ESP1Mh54l8iPCkMF610Zrdjo"]
         }
     );
 }
@@ -219,7 +242,6 @@ const sendOutput = async (thread_id, run_id, tool_call_id, output_text) => {
             tool_outputs: [{
                 "tool_call_id": tool_call_id,
                 "output": output_text,
-                // "output": "data are in file file-A35gVOa4DpZfo3B86cS41QaB",
             }]
         }
     )

@@ -1,12 +1,12 @@
-ruoli: https://3d01-93-149-39-162.ngrok-free.app/10060.json
-rapporti: https://3d01-93-149-39-162.ngrok-free.app/10024.json
-presenze_1: https://3d01-93-149-39-162.ngrok-free.app/10074.json
-presenze_2: https://3d01-93-149-39-162.ngrok-free.app/10075.json
-presenze_3: https://3d01-93-149-39-162.ngrok-free.app/10106.json
-buste paga: https://3d01-93-149-39-162.ngrok-free.app/10028.json
-riconoscimenti: https://3d01-93-149-39-162.ngrok-free.app/10375.json
-dotazioni_1: https://3d01-93-149-39-162.ngrok-free.app/103.json
-dotazioni_2: https://3d01-93-149-39-162.ngrok-free.app/78.json
-dotazioni_3: https://3d01-93-149-39-162.ngrok-free.app/82.json
-rimborsi: https://3d01-93-149-39-162.ngrok-free.app/10173.json
-non conformità: https://3d01-93-149-39-162.ngrok-free.app/10340.json
+ruoli: https://ea00-93-149-39-162.ngrok-free.app/10060.json
+presenze_1: https://ea00-93-149-39-162.ngrok-free.app/10074.json
+presenze_2: https://ea00-93-149-39-162.ngrok-free.app/10075.json
+presenze_3: https://ea00-93-149-39-162.ngrok-free.app/10106.json
+rimborsi: https://ea00-93-149-39-162.ngrok-free.app/10173.json
+
+ruoli: 10060
+presenze_1: 10074
+presenze_2: 10075
+presenze_3: 10106
+rimborsi: 10173
+
