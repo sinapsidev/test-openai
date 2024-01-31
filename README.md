@@ -36,6 +36,7 @@ gli script per funzionare necessitano di una chiave per l'API
 - è possibile anche fare fine tuning in base alle conversazioni passate 
 - permette di avere un modello fedele anche con meno esempi e messaggi più corti -> riduzione dei costi futuri 
 - è possibile farlo anche su un modello su cui è già stato fatto per migliorarlo ancora 
+- è possibile farlo anche con function calling
     (https://www.linkedin.com/pulse/how-fine-tune-chatgpt-gpt-35-turbo-utilizing-new#:~:text=Prepare%20Your%20Data,of%2050%20to%20100%20examples.)
     (https://sintra.ai/blog/chatgpt-fine-tuning)
     (https://help.openai.com/en/articles/6811186-how-do-i-format-my-fine-tuning-data)
