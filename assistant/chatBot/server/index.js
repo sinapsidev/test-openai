@@ -1,56 +1,60 @@
-const express = require("express");
-const path = require("path");
-const cors = require("cors");
+const fastify = require('fastify')({ logger: true });
 const { askGPT, createThread, deleteThread } = require("./gptapi");
-const app = express();
+const path = require('path');
 
 
-// server
-app.use(express.json());
-app.use(cors());
-app.use(express.static(__dirname + '/../client'));
+fastify.register(require('@fastify/static'), {
+    root: path.join(__dirname, '../client'),
+    // prefix: '/public/', 
+    // constraints: { host: 'example.com' } 
+})
+fastify.register(require('@fastify/cors'), {})
 
 
-// endpoints
-app.post("/askGPT", async (req, res) => {
-    const { botReq, session_id } = req.body;
+fastify.post('/askGPT', async function (request, reply) {
+    const { botReq, session_id } = request.body;
 
     try {
         const msg = await askGPT(botReq, session_id);
 
-        if(msg)
-            res.status(200).json({ botRes: msg });
+        if (msg)
+            reply.code(200).send({ botRes: msg });
         else
-            res.status(500).send();
+            reply.code(500).send();
     } catch (e) {
         console.log(e);
+        reply.code(500).send();
     }
-});
-app.post("/createChat", async (req, res) => {
+})
+fastify.post('/createChat', async function (request, reply) {
     try {
         const session_id = await createThread();
 
-        res.status(200).json({ session_id });
+        reply.code(200).send({ session_id });
 
     } catch (e) {
+        reply.code(500).send();
         console.log(e);
     }
-});
-app.post("/deleteChat", async (req, res) => {
-    const { session_id } = req.body;
+})
+fastify.post('/deleteChat', async function (request, reply) {
+    const { session_id } = request.body;
 
     try {
         if (await deleteThread(session_id))
-            res.status(200).send();
+            reply.code(200).send();
         else
-            res.status(500).send();
+            reply.status(500).send();
 
     } catch (e) {
         console.log(e);
+        reply.status(500).send();
     }
-});
+})
 
-
-app.listen(process.env.PORT, () => {
-    console.log(`live on: http://localhost:${process.env.PORT}`);
-});
+fastify.listen({ port: process.env.PORT }, function (err, address) {
+    if (err) {
+        fastify.log.error(err)
+        process.exit(1)
+    }
+})

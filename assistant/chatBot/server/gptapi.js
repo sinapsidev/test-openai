@@ -133,17 +133,33 @@ const addCitations = async (thread_id, message_id) => {
     }
 
     // if (annotations.length > 0) {
-        console.log('annotations: ');
-        console.log(annotations);
-        console.log('citations: ');
-        console.log(citations);
+    console.log('annotations: ');
+    console.log(annotations);
+    console.log('citations: ');
+    console.log(citations);
     // }
 
     // Add footnotes to the end of the message before displaying to the user
     messageContent.value += '\n' + citations.join('\n');
+    console.log(messageContent.value);
     return messageContent.value;
 }
 
+const noSources = (text) => {
+    let s, f, trim;
+    for (let i = 0; i < text.length; i++) {
+        if (text[i] == '【') {
+            trim = true;
+            s = i;
+        }
+        if (text[i] == '】')
+            f = i;
+    }
+    if (trim) {
+        console.log('trimmed')
+        return text.slice(0, s) + text.slice(s+f, text.length);
+    }
+}
 
 /* chiamate agli assistenti */
 
@@ -226,6 +242,7 @@ const askFileAssistant = async (user_request, output_files) => {
         }
     );
 
+    sleep(5000);
 
     let run = await openai.beta.threads.runs.create(thread.id, { assistant_id: assistantF_id });
 
@@ -235,9 +252,8 @@ const askFileAssistant = async (user_request, output_files) => {
 
         if (run.status === 'completed') {
             const messages = await openai.beta.threads.messages.list(thread.id);
-console.log(messages.data[0].content[0].text.annotations)
-            // addCitations(thread.id, messages.data[0].id);
-            return messages.data[0].content[0].text.value;
+            return noSources(messages.data[0].content[0].text.value);
+            // return messages.data[0].content[0].text.value;
         }
         else if (run.status === 'failed') {
             const messages = await openai.beta.threads.messages.list(thread.id);
