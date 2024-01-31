@@ -58,10 +58,12 @@ async function deleteChat() {
 }
 
 // other functions
-const user_msg_classes = "user-message w-full my-0.5 flex justify-end"
-const bot_msg_classes = "bot-message w-full my-0.5 flex justify-start"
+const user_msg_classes = "user-message w-full -my-1 flex flex-col items-end"
+const bot_msg_classes = "bot-message w-full -my-1 flex flex-col items-start"
 const user_inner_msg_classes = "w-fit max-w-[80vw] bg-sky-600 mr-2 px-4 py-2 rounded-xl"
+const user_profile_pic_classes = "h-12 w-12 mr-2 -mt-2 rounded-full"
 const bot_inner_msg_classes = "w-fit max-w-[80vw] bg-gray-100 ml-2 px-4 py-2 rounded-xl"
+const bot_profile_pic_classes = "h-10 w-10 ml-2 -mt-2 rounded-full"
 
 function appendMessage(sender, text, html = '') {
     let chatMessages = document.getElementById('chat-messages');
@@ -74,6 +76,11 @@ function appendMessage(sender, text, html = '') {
     // innerDiv.innerHtml = html;
     innerDiv.insertAdjacentHTML( 'beforeend', html)
     messageDiv.appendChild(innerDiv);
+    
+    let profilePic = document.createElement('img');
+    profilePic.className = sender === 'user' ? user_profile_pic_classes : bot_profile_pic_classes;
+    profilePic.src = sender === 'user' ? './images/user_avatar1.png' : './images/Otello_principale.png'
+    messageDiv.appendChild(profilePic);
 
     chatMessages.scrollTop = chatMessages.scrollHeight;
 }
