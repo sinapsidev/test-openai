@@ -26,7 +26,8 @@ async function sendMessage() {
             appendMessage('bot', res.botRes);
         }
         else 
-            deleteMessage();
+        deleteMessage();
+        // appendMessage('bot', 'Errore nella risposta');
     }
 }
 

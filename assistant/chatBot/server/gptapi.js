@@ -1,8 +1,6 @@
 const OpenAI = require('openai');
 const fs = require('fs');
 const { LogicaLogin, LogicaFetch } = require('./logicaAPI');
-const { threadId } = require('worker_threads');
-
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
@@ -30,8 +28,7 @@ module.exports.askGPT = async (user_request, session_id) => {
             { assistant_id }
         );
 
-        const res = await getResponse(thread_id, run.id, user_request);
-        return res;
+        return res = await askAssistant(thread_id, run.id, user_request);
     }
 }
 
@@ -60,14 +57,7 @@ module.exports.deleteThread = async (session_id) => {
     else return false;
 }
 
-// const deleteAllThreads = async (session_id) => {
-//     console.log(sessions)
-//     for (session in Object.keys(sessions)) {
-//         if (sessions[session_id] !== '')
-//             await openai.beta.threads.del(sessions[session]);
-//     }
-// }
-
+/* Funzioni ausiliarie */
 const deleteFiles = async (threadId) => {
     const list = await openai.files.list();
     for await (const file of list) {
@@ -86,51 +76,7 @@ const deleteFiles = async (threadId) => {
     }
 }
 
-
 const sleep = (delay) => new Promise((resolve) => setTimeout(resolve, delay))
-
-const getResponse = async (thread_id, run_id, user_request) => {
-    let run = { status: '', id: run_id }
-
-    do {
-        run = await openai.beta.threads.runs.retrieve(thread_id, run.id);
-        console.log(run.status)
-
-        /* la run è terminata con successo */
-        if (run.status === 'completed') {
-            const messages = await openai.beta.threads.messages.list(thread_id)
-            let res = []
-            for (let i = 0; i < messages.data.length; i++) {
-                res.push(messages.data[i].content[0].text.value)
-            }
-            // prendere solo l'ultimo messaggion non è il massimo ma per casi semplici va bene
-            return res[0]
-        }
-        /* la run è fallita o ha prodotto un risultato insoddisfacente */
-        else if (run.status === 'failed') {
-            const messages = await openai.beta.threads.messages.list(thread_id)
-            console.log(messages.data[0]);
-            return false;
-        }
-        /* la run ha bisogno dell'output di una funzione */
-        else if (run.status === 'requires_action' && run.required_action.type == 'submit_tool_outputs') {
-// console.log(run.required_action.submit_tool_outputs.tool_calls.length);
-            const output = await getOutput(run.required_action.submit_tool_outputs.tool_calls[0].function.name, run.required_action.submit_tool_outputs.tool_calls[0].function.arguments);
-
-            if (output.type === 'file') {
-                await openai.beta.threads.runs.cancel(thread_id, run.id);
-                return await askFileAssistant(user_request, output.file, output.name);
-            }
-            else
-                await sendOutput(thread_id, run.id, run.required_action.submit_tool_outputs.tool_calls[0].id, output.text);
-        }
-
-        await sleep(1000);
-
-    } while (run.status !== 'completed')
-
-    return false;
-}
 
 const getAgentId = () => { return 15 }
 
@@ -147,92 +93,6 @@ const getOutput = async (function_name, function_args) => {
     return output;
 }
 
-// const isFileCached = (file_name) => {
-//     const file_id = uploaded_files[file_name]
-//     if (file_id) return file_id;
-//     else return false;
-// }
-
-/* forward the request to the assistant F */
-const askFileAssistant = async (user_request, output_file, file_name) => {
-    console.log('--------')
-    // const redirection = `Answer the following request knowing that the data you need are contained in the file i have uploaded rather than in the API: '${user_request}'`;
-    const redirection = ". Know that the data you need are contained in the file i have uploaded rather than in the API";
-    let file = {}
-    // file.id = isFileCached(file_name)
-    // if (!file.id) {
-    file = await openai.files.create({
-        file: output_file,
-        purpose: "assistants"
-    });
-    // uploaded_files[file_name] = file.id;
-    await openai.beta.assistants.files.create(
-        assistantF_id,
-        {
-            file_id: file.id
-        }
-    );
-    // }
-
-    const thread = await openai.beta.threads.create();
-    await openai.beta.threads.messages.create(
-        thread.id,
-        {
-            role: "user",
-            content: user_request + redirection,
-            file_ids: [file.id],
-        }
-    );
-
-    let run = await openai.beta.threads.runs.create(
-        thread.id,
-        { assistant_id: assistantF_id }
-    );
-
-    do {
-        run = await openai.beta.threads.runs.retrieve(thread.id, run.id);
-        console.log(run.status)
-
-        if (run.status === 'completed') {
-            const messages = await openai.beta.threads.messages.list(thread.id);
-            return messages.data[0].content[0].text.value;
-        }
-        else if (run.status === 'failed') {
-            const messages = await openai.beta.threads.messages.list(thread.id);
-            if (messages.data[0].role === "assistant")
-                return messages.data[0].content[0].text.value;
-            else {
-                return false;
-            }
-        }
-        await sleep(1000);
-
-    } while (run.status == 'in_progress');
-}
-
-/* ritorna i file presi dall'API al bot */      // in disuso
-const sendFile = async (thread_id, output_file, user_request) => {
-    const redirection = ". Know that the data you need are contained in the file i have uploaded rather than in the API";
-
-    /* if the file is already uploaded references it */
-    // TODO
-
-    /* else uploads it */
-    const file = await openai.files.create({
-        file: output_file,
-        purpose: "assistants"
-    });
-    const message = await openai.beta.threads.messages.create(
-        thread_id,
-        {
-            role: "user",
-            content: user_request + redirection,
-            file_ids: [file.id]
-            // file_ids: ["file-ESP1Mh54l8iPCkMF610Zrdjo"]
-        }
-    );
-}
-
 /* ritorna l'output dall'API al bot */
 const sendOutput = async (thread_id, run_id, tool_call_id, output_text) => {
     await openai.beta.threads.runs.submitToolOutputs(
@@ -245,4 +105,147 @@ const sendOutput = async (thread_id, run_id, tool_call_id, output_text) => {
             }]
         }
     )
+}
+
+/* aggiunge lle citazioni all'output */
+const addCitations = async (thread_id, message_id) => {
+    // Retrieve the message object
+    const message = await openai.beta.threads.messages.retrieve(thread_id, message_id);
+
+    // Extract the message content
+    const messageContent = message.content[0].text;
+    const annotations = messageContent.annotations;
+    const citations = [];
+
+    // Iterate over the annotations and add footnotes
+    for (let index = 0; index < annotations.length; index++) {
+        const annotation = annotations[index];
+
+        // Replace the text with a footnote
+        messageContent.value = messageContent.value.replace(annotation.text, `[${index}]`);
+
+        // Gather citations based on annotation attributes
+        if (annotation.file_citation) {
+            const citedFile = openai.files.retrieve(annotation.file_citation.file_id);
+            citations.push(`[${index}] ${annotation.file_citation.quote} from ${citedFile.filename}`);
+        } else if (annotation.file_path) {
+            const citedFile = openai.files.retrieve(annotation.file_path.file_id);
+            citations.push(`[${index}] Click <here> to download ${citedFile.filename}`);
+            // Note: File download functionality not implemented above for brevity
+        }
+    }
+
+    // if (annotations.length > 0) {
+        console.log('annotations: ');
+        console.log(annotations);
+        console.log('citations: ');
+        console.log(citations);
+    // }
+
+    // Add footnotes to the end of the message before displaying to the user
+    messageContent.value += '\n' + citations.join('\n');
+    return messageContent.value;
+}
+
+
+/* chiamate agli assistenti */
+
+/* ritorna una risposta se non servono file o indica quali file servano */
+const askAssistant = async (thread_id, run_id, user_request) => {
+    let run = { status: '', id: run_id }
+    let requires_file = false;
+    let output_files = [];
+
+    do {
+        run = await openai.beta.threads.runs.retrieve(thread_id, run.id);
+        console.log(run.status)
+
+        /* La run necessita di file */
+        if (requires_file && (run.status === 'completed' || run.status === 'failed')) {
+            // await openai.beta.threads.runs.cancel(thread_id, run.id);
+            return await askFileAssistant(user_request, output_files);
+        }
+        /* la run è terminata con successo */
+        else if (run.status === 'completed') {
+            const messages = await openai.beta.threads.messages.list(thread_id)
+            // prendere solo l'ultimo messaggio non è il massimo ma per casi semplici va bene
+            return messages.data[0].content[0].text.value
+        }
+        /* la run è fallita o ha prodotto un risultato insoddisfacente */
+        else if (run.status === 'failed') {
+            const messages = await openai.beta.threads.messages.list(thread_id)
+            return false;
+        }
+        /* la run ha bisogno dell'output di una funzione */
+        else if (run.status === 'requires_action' && run.required_action.type == 'submit_tool_outputs') {
+            // console.log(run.required_action.submit_tool_outputs.tool_calls.length);
+            const output = await getOutput(run.required_action.submit_tool_outputs.tool_calls[0].function.name, run.required_action.submit_tool_outputs.tool_calls[0].function.arguments);
+
+            if (output.type === 'file') {
+                requires_file = true;
+                output_files.push(output);
+                const output_text = 'non ci sono ' + run.required_action.submit_tool_outputs.tool_calls[0].function.name + ' disponibili.'
+                await sendOutput(thread_id, run.id, run.required_action.submit_tool_outputs.tool_calls[0].id, output_text);
+            }
+            else {
+                await sendOutput(thread_id, run.id, run.required_action.submit_tool_outputs.tool_calls[0].id, output.text);
+            }
+        }
+
+        await sleep(1000);
+
+    } while (run.status !== 'completed')
+
+    return false;
+}
+
+/* analizza i file necessari e ritorna una risposta */
+const askFileAssistant = async (user_request, output_files) => {
+    console.log('--------')
+
+    if (output_files.length === 0) throw new Error('Cannot call file assistant without files');
+
+    // const redirection = `Answer the following request knowing that the data you need are contained in the file i have uploaded rather than in the API: '${user_request}'`;
+    const redirection = ". Know that the data you need are contained in the file i have uploaded rather than in the API, but this must be transparent to the user";
+    let file_ids = [];
+
+    for (let i = 0; i < output_files.length; i++) {
+        const file = await openai.files.create({ file: output_files[i].file, purpose: "assistants" });
+        file_ids.push(file.id);
+        await openai.beta.assistants.files.create(assistantF_id, { file_id: file.id });
+    }
+    console.log(file_ids);
+    const thread = await openai.beta.threads.create();
+    await openai.beta.threads.messages.create(
+        thread.id,
+        {
+            role: "user",
+            content: user_request + redirection,
+            file_ids
+        }
+    );
+
+    let run = await openai.beta.threads.runs.create(thread.id, { assistant_id: assistantF_id });
+
+    do {
+        run = await openai.beta.threads.runs.retrieve(thread.id, run.id);
+        console.log(run.status)
+
+        if (run.status === 'completed') {
+            const messages = await openai.beta.threads.messages.list(thread.id);
+
+            addCitations(thread.id, messages.data[0].id);
+            return messages.data[0].content[0].text.value;
+        }
+        else if (run.status === 'failed') {
+            const messages = await openai.beta.threads.messages.list(thread.id);
+            if (messages.data[0].role === "assistant")
+                return messages.data[0].content[0].text.value;
+            else {
+                return false;
+            }
+        }
+        await sleep(1000);
+
+    } while (run.status !== 'completed');
 }
