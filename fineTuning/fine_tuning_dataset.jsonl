@@ -11,20 +11,24 @@
 
 {
   "messages": [
-      {"role": "user", "content": "What is the weather in San Francisco?"},
-      {"role": "assistant", "function_call": {"name": "get_current_weather", "arguments": "{\"location\": \"San Francisco, USA\", \"format\": \"celcius\"}"}
+      {"role": "user", "content": "Quale è stato l'ultima presenza?"},
+      {"role": "assistant", "function_call": {"name": "logica_fetch", "arguments": "{\"resource\": \"presenze\"}"}}
   ],
   "functions": [{
-      "name": "get_current_weather",
-      "description": "Get the current weather",
-      "parameters": {
-          "type": "object",
-          "properties": {
-              "location": {"type": "string", "description": "The city and country, eg. San Francisco, USA"},
-              "format": {"type": "string", "enum": ["celsius", "fahrenheit"]}
-          },
-          "required": ["location", "format"]
-      }
+    "name": "logica_fetch",
+    "description": "fa una fetch all' api di logica e ritorna le risorse richieste",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "resource": {
+          "type": "string",
+          "description": "nome della risorsa richiesta"
+        }
+      },
+      "required": [
+        "resources"
+      ]
+    }
   }]
 }
 

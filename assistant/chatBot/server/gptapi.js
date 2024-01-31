@@ -8,9 +8,6 @@ let assistant_id = 'asst_WZjTVTFa3byJBgVb8eQk9eZR';
 let assistantF_id = 'asst_xkM3V2sEngbh8y1wvKw2WDRJ';
 
 let sessions = {};
-// let uploaded_files = {
-//     '10173.json': 'file-YXt8OlSNfN7OwsiZAZ8s0UuN',
-// };
 
 
 module.exports.askGPT = async (user_request, session_id) => {
@@ -206,15 +203,19 @@ const askFileAssistant = async (user_request, output_files) => {
     if (output_files.length === 0) throw new Error('Cannot call file assistant without files');
 
     // const redirection = `Answer the following request knowing that the data you need are contained in the file i have uploaded rather than in the API: '${user_request}'`;
-    const redirection = ". Know that the data you need are contained in the file i have uploaded rather than in the API, but this must be transparent to the user";
+    // const redirection = ". Know that the data you need are contained in the JSON file i have uploaded rather than in the API.";
+    let redirection = `. Instead of the API, the data are found in the files:`;
     let file_ids = [];
 
     for (let i = 0; i < output_files.length; i++) {
-        const file = await openai.files.create({ file: output_files[i].file, purpose: "assistants" });
+        let file = await openai.files.create({ file: output_files[i].file, purpose: "assistants" });
+        file = await openai.beta.assistants.files.create(assistantF_id, { file_id: file.id });
         file_ids.push(file.id);
-        await openai.beta.assistants.files.create(assistantF_id, { file_id: file.id });
+        redirection = redirection + ' ' + file.id;
+
     }
     console.log(file_ids);
+
     const thread = await openai.beta.threads.create();
     await openai.beta.threads.messages.create(
         thread.id,
@@ -225,6 +226,7 @@ const askFileAssistant = async (user_request, output_files) => {
         }
     );
 
+
     let run = await openai.beta.threads.runs.create(thread.id, { assistant_id: assistantF_id });
 
     do {
@@ -233,8 +235,8 @@ const askFileAssistant = async (user_request, output_files) => {
 
         if (run.status === 'completed') {
             const messages = await openai.beta.threads.messages.list(thread.id);
-
-            addCitations(thread.id, messages.data[0].id);
+console.log(messages.data[0].content[0].text.annotations)
+            // addCitations(thread.id, messages.data[0].id);
             return messages.data[0].content[0].text.value;
         }
         else if (run.status === 'failed') {
