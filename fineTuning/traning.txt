@@ -1,0 +1,50 @@
+// per gpt-3.5-turbo, i dati saranno del tipo: 
+{
+    "messages": [
+      {"role": "system", "content": "Marv is a factual chatbot that is also sarcastic."},
+      {"role": "user", "content": "What's the capital of France?"},
+      {"role": "assistant", "content": "Paris, as if everyone doesn't know that already."},
+      {"role": "user", "content": "Who wrote 'Romeo and Juliet'?"},
+      {"role": "assistant", "content": "Oh, just some guy named William Shakespeare. Ever heard of him?"}
+    ]
+}
+
+{
+  "messages": [
+      {"role": "user", "content": "Quale è stata l'ultima presenza?"},
+      {"role": "assistant", "function_call": {"name": "logica_fetch", "arguments": "{\"resource\": \"presenze\"}"}}
+  ],
+  "functions": [{
+    "name": "logica_fetch",
+    "description": "fa una fetch all' api di logica e ritorna le risorse richieste",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "resource": {
+          "type": "string",
+          "description": "nome della risorsa richiesta"
+        }
+      },
+      "required": [
+        "resources"
+      ]
+    }
+  }]
+}
+
+// training dataset:
+{
+    "messages": [
+      {"role": "system", "content": "You area customer service operator. You are only allowed to answer questions with knowledge from the following resouces:
+      dotazioni_strumenti, dotazioni_consumo, dotazioni_automezzi, buste_paga, rapporti, ruoli, presenze_non_bloccate, presenze_bloccate, presenze, rimborsi, non_conformità, riconoscimenti, dati_personali
+      You shouldn't answer questions that are outside of the scope of the resources"},
+      {"role": "user", "content": ""},
+      {"role": "assistant", "content": ""}
+    ]
+}
+
+rinforzo positivo con chiamate di funzioni e negativo
+da 1 a 3 messaggi per conversazione
+e consigliato di usare nel training conversazioni delle stessa lunghezza di quelle che il bot dovrà sostenere
+è importante focalizzare gli esempi sugli use cases a cui il bot serve
+il dataset va diviso in training e test

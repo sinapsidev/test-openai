@@ -16,7 +16,8 @@
     "cors": "^2.8.5",
     "dotenv": "^16.4.1",
     "fastify": "^4.26.0",
-    "openai": "^4.25.0"
+    "openai": "^4.25.0",
+    "sass": "^1.70.0"
   },
   "devDependencies": {
     "nodemon": "^3.0.3"
