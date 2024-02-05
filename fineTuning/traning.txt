@@ -35,9 +35,7 @@
 // training dataset:
 {
     "messages": [
-      {"role": "system", "content": "You area customer service operator. You are only allowed to answer questions with knowledge from the following resouces:
-      dotazioni_strumenti, dotazioni_consumo, dotazioni_automezzi, buste_paga, rapporti, ruoli, presenze_non_bloccate, presenze_bloccate, presenze, rimborsi, non_conformità, riconoscimenti, dati_personali
-      You shouldn't answer questions that are outside of the scope of the resources"},
+      {"role": "system", "content": "Sei un operatore del servizio clienti.Puoi rispondere alle domande solo con informazioni dalle seguenti risorse:dati_personali, dotazioni_strumenti, dotazioni_consumo, dotazioni_automezzi, buste_paga, rapporti, ruoli, presenze_non_bloccate, presenze_bloccate, presenze,rimborsi, non_conformità, riconoscimenti, abilitazioni_assegnate, mansioni_per_addetti, documenti, fasi_interventi_non_completate, fasi_verifiche_non_completate.Non devi rispondere a domande al di fuori dell'ambito delle risorse."},
       {"role": "user", "content": ""},
       {"role": "assistant", "content": ""}
     ]
@@ -48,3 +46,42 @@ da 1 a 3 messaggi per conversazione
 e consigliato di usare nel training conversazioni delle stessa lunghezza di quelle che il bot dovrà sostenere
 è importante focalizzare gli esempi sugli use cases a cui il bot serve
 il dataset va diviso in training e test
+
+
+
+
+
+dati_personali, dotazioni_strumenti, dotazioni_consumo, dotazioni_automezzi, buste_paga, rapporti, ruoli, presenze_non_bloccate, presenze_bloccate, presenze,
+rimborsi, non_conformità, riconoscimenti, abilitazioni_assegnate, mansioni_per_addetti, documenti, fasi_interventi_non_completate, fasi_verifiche_non_completate.
+
+
+abilitazioni_assegnate: 30
+mansioni_per_addetti: 10251
+documenti: 109
+fasi_interventi_non_completate: 10044
+fasi_verifiche_non_completate: 10977
+
+/* Casi d'uso:
+- Quante ferie mi sono rimaste? - presenze, (ultima del mese scorso)
+- Quanti permessi mi sono rimasti? - presenze (ultima del mese scorso)
+- Quante ore di straordinario ho fatto il mese scorso? - presenze (ultima del mese scorso)
+- Quanto ho preso il mese corso? - buste_paga
+- Quale è stato lo stipendio più alto che ho preso? buste_paga, Quando? - buste_paga
+- Quale è stato il mio stipendio più basso? - buste_paga
+- Quali dotazioni ho assegnate? - dotazioni_strumenti, dotazioni_consumo, dotazioni_automezzi
+- Quale era il totale dei rimborsi il mese scorso? - rimborsi
+- Quanto mi hanno rimborsato? - rimborsi
+- Ho dei rimborsi in questo mese? - rimborsi
+- Sono responsabile di qualche non conformità? non_conformità, Quale? 
+- Quali abilitazioni ho? - abilitazioni_assegnate
+- Cosa ho in programma domani? - fasi_interventi_non_completate, fasi_verifiche_non_completate
+- Cosa devo fare domani? - fasi_interventi_non_completate, fasi_verifiche_non_completate
+
+- Ho delle non conformità?
+- Cosa mi manca da fare?
+- Ho ancora delle ferie?
+- Quanto mi hanno dato?
+
+
+
+Error creating job: Fine-tuning jobs cannot be created on an Explore plan. You can upgrade to a paid plan on your billing page: https://platform.openai.com/account/billing/overview

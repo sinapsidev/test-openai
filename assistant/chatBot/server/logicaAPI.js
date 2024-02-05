@@ -87,6 +87,21 @@ module.exports.LogicaFetch = async (resource, idAgente) => {
             case 'riconoscimenti':
                 idVista = 10357;
                 break;
+            case 'abilitazioni_assegnate':
+                idVista = 30;
+                break;
+            case 'mansioni_per_addetti':
+                idVista = 10251;
+                break;
+            case 'documenti':
+                idVista = 109;
+                break;
+            case 'fasi_interventi_non_completate':
+                idVista = 10044;
+                break;
+            case 'fasi_verifiche_non_completate':
+                idVista = 10977;
+                break;
             default:
                 idVista = -1;
                 break;
