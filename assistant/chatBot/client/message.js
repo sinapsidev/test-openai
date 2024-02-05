@@ -61,9 +61,9 @@ async function deleteChat() {
 const user_msg_classes = "user-message w-full -my-1 flex flex-col items-end"
 const bot_msg_classes = "bot-message w-full -my-1 flex flex-col items-start"
 const user_inner_msg_classes = "w-fit max-w-[80vw] bg-sky-600 mr-2 px-4 py-2 rounded-xl"
-const user_profile_pic_classes = "h-12 w-12 mr-2 -mt-2 rounded-full"
+const user_profile_pic_classes = "h-12 w-12 mr-2 -mt-2 mb-2 rounded-full"
 const bot_inner_msg_classes = "w-fit max-w-[80vw] bg-gray-100 ml-2 px-4 py-2 rounded-xl"
-const bot_profile_pic_classes = "h-10 w-10 ml-2 -mt-2 rounded-full"
+const bot_profile_pic_classes = "h-10 w-10 ml-2 -mt-2 mb-2 rounded-full"
 
 function appendMessage(sender, text, html = '') {
     let chatMessages = document.getElementById('chat-messages');

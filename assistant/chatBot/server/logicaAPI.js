@@ -51,6 +51,9 @@ module.exports.LogicaFetch = async (resource, idAgente) => {
         let idVista;
 
         switch (resource) {
+            case 'abilitazioni_assegnate':
+                idVista = 30;
+                break;
             case 'dotazioni_strumenti':
                 idVista = 78;
                 break;
@@ -60,26 +63,35 @@ module.exports.LogicaFetch = async (resource, idAgente) => {
             case 'dotazioni_automezzi':
                 idVista = 103;
                 break;
-            case 'buste_paga':
-                idVista = 10028;
+            case 'documenti':
+                idVista = 109;
                 break;
             case 'rapporti':
                 idVista = 10024;
                 break;
-            case 'ruoli':
+            case 'buste_paga':
+                idVista = 10028;
+                break;
+            case 'fasi_interventi_non_completate':
+                idVista = 10038;
+                break;
+            case 'ruoli_organigramma':
                 idVista = 10060;
                 break;
             case 'presenze_non_bloccate':
-                idVista = 10106;
-                break;
-            case 'presenze_bloccate':
                 idVista = 10074;
                 break;
-            case 'presenze':
+            case 'presenze_bloccate':
                 idVista = 10075;
+                break;
+            case 'presenze_giornaliere':
+                idVista = 10106;
                 break;
             case 'rimborsi':
                 idVista = 10173;
+                break;
+            case 'mansioni_per_addetti':
+                idVista = 10251;
                 break;
             case 'non_conformità':
                 idVista = 10340;
@@ -87,20 +99,8 @@ module.exports.LogicaFetch = async (resource, idAgente) => {
             case 'riconoscimenti':
                 idVista = 10357;
                 break;
-            case 'abilitazioni_assegnate':
-                idVista = 30;
-                break;
-            case 'mansioni_per_addetti':
-                idVista = 10251;
-                break;
-            case 'documenti':
-                idVista = 109;
-                break;
-            case 'fasi_interventi_non_completate':
-                idVista = 10044;
-                break;
             case 'fasi_verifiche_non_completate':
-                idVista = 10977;
+                idVista = 10699;
                 break;
             default:
                 idVista = -1;
@@ -126,9 +126,9 @@ module.exports.LogicaFetch = async (resource, idAgente) => {
                 // console.log('file')
                 return {
                     type: 'file',
-                    file: await resToFile(res.records),
+                    file: await resToFile(res.records, res.etichetta),
                     name: idVista,
-                    label: res.etichietta
+                    label: res.etichetta
                 }
             }
             // else {
@@ -139,14 +139,19 @@ module.exports.LogicaFetch = async (resource, idAgente) => {
             //     }
             // }
         }
-        else throw new Error("Couldn't fetch the API");
+        else {
+            console.log(res.status);
+            throw new Error("Couldn't fetch the API");
+        }
     }
 }
 
 
-async function resToFile(records) {
-    fs.writeFile('temp.json', JSON.stringify(records, null, 2), 'utf8', function (err) {
+async function resToFile(records, label) {
+    fs.writeFile(`temp.json`, JSON.stringify(records, null, 2), 'utf8', function (err) {
         if (err) throw err;
-    });
-    return fs.createReadStream('temp.json');
+    }); 
+    return fs.createReadStream(`temp.json`);
+
+    // return new File([records], "data.json", { type: "text/plain" });
 }
