@@ -201,7 +201,7 @@ const askFileAssistant = async (user_request, output_files) => {
         }
     );
 
-    sleep(5000);
+    await sleep(2000);
 
     let run = await openai.beta.threads.runs.create(thread.id, { assistant_id: assistantF_id });
 
