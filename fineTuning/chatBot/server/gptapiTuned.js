@@ -7,21 +7,34 @@ const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 const context = "Sei un operatore del servizio clienti.Puoi rispondere alle domande solo con informazioni dalle seguenti risorse:dati_personali, dotazioni_strumenti, dotazioni_consumo, dotazioni_automezzi, buste_paga, rapporti, ruoli, presenze_non_bloccate, presenze_bloccate, presenze,rimborsi, non_conformità, riconoscimenti, abilitazioni_assegnate, mansioni_per_addetti, documenti, fasi_interventi_non_completate, fasi_verifiche_non_completate.Non devi rispondere a domande al di fuori dell'ambito delle risorse.";
 let assistantF_id = 'asst_xkM3V2sEngbh8y1wvKw2WDRJ';
+const sessions = {}
+const chats = {}
 
 
 module.exports.askGPT = async (user_request, session_id) => {
-    deleteFiles();
-    return res = await askCompletion(user_request);
+    return res = await askCompletion(user_request, session_id);
 }
 
 module.exports.createThread = async () => {
+    thread = await openai.beta.threads.create();
+    session_id = crypto.randomUUID();
+    sessions[session_id] = thread.id;
+
     if (!LogicaLogin()) throw new Error('Cannot Login');
 
-    return 0;
+    return session_id;
 }
 
 module.exports.deleteThread = async (session_id) => {
-    return true;
+    deleteFiles();
+
+    if (sessions[session_id]) {
+        const response = await openai.beta.threads.del(sessions[session_id]);
+        sessions[session_id] = '';
+        if (response.ok) return true;
+        else return false;
+    }
+    else return false;
 }
 
 /* Funzioni ausiliarie */
@@ -105,17 +118,21 @@ const requestProcessing = (request, function_args) => {
 
 
 /* ritorna una risposta se non servono file o indica quali file servano */
-const askCompletion = async (user_request) => {
+const askCompletion = async (user_request, session_id) => {
+    if(chats[session_id]) chats[session_id].push({ role: "user", content: user_request });
+    else chats[session_id] = [{ role: "system", content: context }, { role: "user", content: user_request }];
 
     const completion = await openai.chat.completions.create({
-        messages: [{ role: "system", content: context }, { role: "user", content: user_request }],
-        model: "ft:gpt-3.5-turbo-0613:personal::8oqepVTI",
+        messages: chats[session_id],
+        // model: "ft:gpt-3.5-turbo-0613:personal::8oqepVTI",
+        // model: "ft:gpt-3.5-turbo-0613:personal::8ovGZ0x0",
+        model: "ft:gpt-3.5-turbo-0613:personal::8oveFtmG",
         tools: [
             {
                 "type": "function",
                 "function": {
                     "name": "logica_fetch",
-                    "description": "fa una fetch all' api di logica e ritorna le risorse richieste",
+                    "description": "fa una fetch all' api di logica e ritorna la risorsa richiesta",
                     "parameters": {
                         "type": "object",
                         "properties": {
@@ -142,12 +159,14 @@ const askCompletion = async (user_request) => {
 
         if (output.type === 'file') {
             const output_files = [output];
-            return askFileAssistant(user_request, output_files);
+            return askFileAssistant(user_request, output_files, session_id);
         }
 
+        chats[session_id].push({role:'assistant', content:output.text});
         return output.text;
     }
     else if (completion.choices[0].message.content) {
+        chats[session_id].push({role:'assistant', content:completion.choices[0].message.content});
         return completion.choices[0].message.content
     }
     else console.log('response empty')
@@ -159,8 +178,6 @@ const askFileAssistant = async (user_request, output_files) => {
 
     if (output_files.length === 0) throw new Error('Cannot call file assistant without files');
 
-    // const redirection = `Answer the following request knowing that the data you need are contained in the file i have uploaded rather than in the API: '${user_request}'`;
-    // const redirection = ". Know that the data you need are contained in the JSON file i have uploaded rather than in the API.";
     let redirection = `. Instead of the API, the data are found in the following files:`;
     let file_ids = [];
 
@@ -173,7 +190,8 @@ const askFileAssistant = async (user_request, output_files) => {
     }
     console.log(file_ids);
 
-    const thread = await openai.beta.threads.create();
+    const thread = { id: sessions[session_id]}
+
     await openai.beta.threads.messages.create(
         thread.id,
         {
@@ -193,7 +211,10 @@ const askFileAssistant = async (user_request, output_files) => {
 
         if (run.status === 'completed') {
             const messages = await openai.beta.threads.messages.list(thread.id);
-            return noSources(messages.data[0].content[0].text.value);
+            const res = noSources(messages.data[0].content[0].text.value);
+
+            chats[session_id].push({role:'assistant', content:res});
+            return res
             // return messages.data[0].content[0].text.value;
         }
         else if (run.status === 'failed') {

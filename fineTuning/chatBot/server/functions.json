@@ -1,0 +1,23 @@
+[
+    {
+        "name": "logica_fetch",
+        "description": "fa una fetch all' api di logica e ritorna le risorse richieste",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "idVista": {
+                    "type": "string",
+                    "description": "id della vista srichiesta per ottenere una certa risorsa"
+                }
+            },
+            "required": [
+                "idVista",
+            ]
+        }
+    }
+]
+ruoli: 10060
+presenze_1: 10074
+presenze_2: 10075
+presenze_3: 10106
+rimborsi: 10173

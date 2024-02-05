@@ -1,6 +1,6 @@
 const fastify = require('fastify')({ logger: true });
 // const { askGPT, createThread, deleteThread } = require("./gptapi");
-const { askGPT, createThread, deleteThread } = require("./gptapi");
+const { askGPT, createThread, deleteThread } = require("./gptapiTuned");
 const path = require('path');
 
 
