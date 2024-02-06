@@ -128,7 +128,7 @@ module.exports.LogicaFetch = async (resource, idAgente) => {
                     type: 'file',
                     file: await resToFile(res.records, res.etichetta),
                     name: idVista,
-                    label: res.etichetta
+                    label: resource
                 }
             }
             // else {

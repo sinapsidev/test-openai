@@ -75,26 +75,29 @@ const getOutput = async (function_name, function_args) => {
 
 /* rimuove le fonti */
 const noSources = (text) => {
-    let trim;
+    // let trim;
 
-    let i = 0, s, f;
-    while (i < text.length) {
-        if (text[i] === '【') {
-            s = i;
-            trim = true;
-        }
-        else if (text[i] === '】' && !!trim) {
-            f = i;
+    // let i = 0, s, f;
+    // while (i < text.length) {
+    //     if (text[i] === '【') {
+    //         s = i;
+    //         trim = true;
+    //     }
+    //     else if (text[i] === '】' && !!trim) {
+    //         f = i;
 
-            text = text.slice(0, s) + text.slice(s + f, text.length);
-            console.log('trimmed')
-            trim = false;
-            i = s; s = 0; f = 0;
-        }
-        i++;
-    }
+    //         text = text.slice(0, s) + text.slice(s + f, text.length);
+    //         console.log('trimmed')
+    //         trim = false;
+    //         i = s; s = 0; f = 0;
+    //     }
+    //     i++;
+    // }
 
-    return text
+    // return text
+
+    const regex = /【[^【】]*】/g;
+    return text.replace(regex, '');
 }
 
 const requestProcessing = (request, function_args) => {
@@ -119,7 +122,7 @@ const requestProcessing = (request, function_args) => {
 
 /* ritorna una risposta se non servono file o indica quali file servano */
 const askCompletion = async (user_request, session_id) => {
-    if(chats[session_id]) chats[session_id].push({ role: "user", content: user_request });
+    if (chats[session_id]) chats[session_id].push({ role: "user", content: user_request });
     else chats[session_id] = [{ role: "system", content: context }, { role: "user", content: user_request }];
 
     const completion = await openai.chat.completions.create({
@@ -162,11 +165,11 @@ const askCompletion = async (user_request, session_id) => {
             return askFileAssistant(user_request, output_files, session_id);
         }
 
-        chats[session_id].push({role:'assistant', content:output.text});
+        chats[session_id].push({ role: 'assistant', content: output.text });
         return output.text;
     }
     else if (completion.choices[0].message.content) {
-        chats[session_id].push({role:'assistant', content:completion.choices[0].message.content});
+        chats[session_id].push({ role: 'assistant', content: completion.choices[0].message.content });
         return completion.choices[0].message.content
     }
     else console.log('response empty')
@@ -178,25 +181,26 @@ const askFileAssistant = async (user_request, output_files) => {
 
     if (output_files.length === 0) throw new Error('Cannot call file assistant without files');
 
-    let redirection = `. Instead of the API, the data are found in the following files:`;
+    let redirection = '';
     let file_ids = [];
 
-    for (let i = 0; i < output_files.length; i++) {
-        let file = await openai.files.create({ file: output_files[i].file, purpose: "assistants" });
-        file = await openai.beta.assistants.files.create(assistantF_id, { file_id: file.id });
-        file_ids.push(file.id);
-        redirection = redirection + ' ' + file.id;
+    if (output_files.length > 1) throw new Error("There shouldn't be that may files");
+    let file = await openai.files.create({ file: output_files[0].file, purpose: "assistants" });
+    file = await openai.beta.assistants.files.create(assistantF_id, { file_id: file.id });
+    file_ids.push(file.id);
+    redirection = `I dati che ti servono su ${output_files[0].label} sono nel file: ${file.id}`;
+    // redirection = `. I dati che ti servono su ${output_files[i].label} sono nel file: che ho caricato`;
 
-    }
     console.log(file_ids);
 
-    const thread = { id: sessions[session_id]}
+    const thread = { id: sessions[session_id] }
 
     await openai.beta.threads.messages.create(
         thread.id,
         {
             role: "user",
             content: user_request + redirection,
+            content: `${user_request}. ${redirection}`,
             file_ids
         }
     );
@@ -213,7 +217,7 @@ const askFileAssistant = async (user_request, output_files) => {
             const messages = await openai.beta.threads.messages.list(thread.id);
             const res = noSources(messages.data[0].content[0].text.value);
 
-            chats[session_id].push({role:'assistant', content:res});
+            chats[session_id].push({ role: 'assistant', content: res });
             return res
             // return messages.data[0].content[0].text.value;
         }
