@@ -1,0 +1,47 @@
+[
+  {
+    "ID": 3594,
+    "identificativo": "UD SorinPop 2023/    12 01 gennaio",
+    " ID addetto": 433,
+    "addetto": "UD SorinPop",
+    "anno": 2023,
+    "numero": 12,
+    "mese": "01 gennaio",
+    "importo addetto": 17.2,
+    "importo carta": 523.77,
+    "importo totale": 540.97,
+    "totale km": 0,
+    " invisibilerimborsato9": false,
+    "Row": 1
+  },
+  {
+    "ID": 3939,
+    "identificativo": "UD SorinPop 2023/   355 12 dicembre",
+    " ID addetto": 433,
+    "addetto": "UD SorinPop",
+    "anno": 2023,
+    "numero": 355,
+    "mese": "12 dicembre",
+    "importo addetto": 0,
+    "importo carta": 357.92,
+    "importo totale": 357.92,
+    "totale km": 0,
+    " invisibilerimborsato9": false,
+    "Row": 2
+  },
+  {
+    "ID": 3972,
+    "identificativo": "UD SorinPop 2024/     7 01 gennaio",
+    " ID addetto": 433,
+    "addetto": "UD SorinPop",
+    "anno": 2024,
+    "numero": 7,
+    "mese": "01 gennaio",
+    "importo addetto": 0,
+    "importo carta": 0,
+    "importo totale": 0,
+    "totale km": 0,
+    " invisibilerimborsato9": false,
+    "Row": 3
+  }
+]

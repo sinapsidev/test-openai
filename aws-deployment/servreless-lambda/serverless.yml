@@ -1,0 +1,18 @@
+service: serverless-lambda
+provider:
+  name: aws
+  runtime: nodejs18.x
+  stage: dev
+functions:
+  app:
+    handler: app.server
+    events:
+      - http:
+          path: /
+          method: GET
+          cors: true
+      - http:
+          path: /askGPT
+          method: POST
+          cors: true
+    timeout: 29
