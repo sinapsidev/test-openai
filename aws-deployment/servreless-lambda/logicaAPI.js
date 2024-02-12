@@ -3,7 +3,6 @@ var fs = require('fs');
 
 const url = 'https://logicadev2.snps.it/';
 const base_url = url + 'api/v2/0';
-let access_token = '';
 const limit = 100;
 
 
@@ -109,7 +108,7 @@ module.exports.LogicaFetch = async (resource, access_token, idAgente) => {
             }
         }
         else {
-            console.log(res.status);
+            // console.log(res);
             throw new Error("Couldn't fetch the API");
         }
     }
