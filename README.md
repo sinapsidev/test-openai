@@ -2,10 +2,11 @@
 ## indice
 - actionsGPT: file per il setup di con GPT custom
 - assistant: script per interagire con un assistant
+- aws-deployment: file per creare una lambda che implementa l'assistente
 - chatbotDemo: applicazione web che implementa un chatbot usando chatGPT con la possibilità di interagire con API  
     non c'è ancora memoria delle conversazioni -> ogni messaggio viene risposto indipendentemente dagli altri
 - datatestAPI: api perr gli endpoint di prova
-- fineTuning: file per fare il fine tuning di un modello di openai
+- fineTuning: file per fare il fine tuning di un modello di openai e chatbot dopo il finetuning
 - superagent: script per usare l'api messa a disposizione del framework superagentai
 
 gli script per funzionare necessitano di una chiave per l'API

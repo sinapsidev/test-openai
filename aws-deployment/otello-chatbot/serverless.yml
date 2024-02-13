@@ -1,11 +1,14 @@
-service: serverless-lambda
+service: otello-chatbot
 provider:
   name: aws
   runtime: nodejs18.x
   stage: dev
+  logRetentionInDays: 30
 functions:
   app:
     handler: app.server
+    enviroment: 
+      OPENAI_API_KEY: 	${ssm:/otello-chatbot/openai_api_key}
     events:
       - http:
           path: /

@@ -13,7 +13,6 @@ let assistantF_id = 'asst_xkM3V2sEngbh8y1wvKw2WDRJ';       //F
 module.exports.askGPT = async (user_request, access_token, id_addetto) => {
     deleteFiles();
 
-
     return res = await askCompletion(user_request, access_token, id_addetto);
 }
 
