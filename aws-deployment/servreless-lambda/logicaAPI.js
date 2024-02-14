@@ -101,7 +101,7 @@ module.exports.LogicaFetch = async (resource, access_token, idAgente) => {
                 return {
                     type: 'file',
                     // file: res.records,
-                    file: await resToFile(res.records),
+                    file: await resToFile(res.records, resource),
                     name: idVista,
                     label: resource
                 }
@@ -114,7 +114,7 @@ module.exports.LogicaFetch = async (resource, access_token, idAgente) => {
     }
 }
 
-async function resToFile(records) {
+async function resToFile(records, resource) {
     fs.writeFile(`/tmp/temp.json`, JSON.stringify(records, null, 2), 'utf8', function (err) {
         if (err) throw err;
     });
