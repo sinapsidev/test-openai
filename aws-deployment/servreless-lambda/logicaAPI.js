@@ -5,6 +5,32 @@ const url = 'https://logicadev2.snps.it/';
 const base_url = url + 'api/v2/0';
 const limit = 100;
 
+// const LogicaLogin = async () => {
+//     let res = await fetch(url + 'login', {
+//         method: 'POST',
+//         headers: {
+//             'Content-Type': 'application/x-www-form-urlencoded'
+//         },
+//         body: new URLSearchParams({
+//             username: 'alessandrospasiano@snps.it',
+//             password: 'Ponghino2!',
+//             grant_type: 'password',
+//             client_id: 'xdbAuthClient'
+//         })
+//     })
+
+//     // if (res.ok) {
+//         res = await res.json();
+//         console.log(res);
+//     //     return true;
+//     // }
+//     // else
+//     //     return false;
+// }
+// async function f() {
+//     await LogicaLogin()
+// }
+// f()
 
 module.exports.LogicaFetch = async (resource, access_token, idAgente) => {
     if (resource === 'dati_personali') {
