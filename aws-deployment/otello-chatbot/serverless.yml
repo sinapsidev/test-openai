@@ -1,4 +1,4 @@
-service: servreless-lambda
+service: otello-chatbot
 provider:
   name: aws
   runtime: nodejs18.x
