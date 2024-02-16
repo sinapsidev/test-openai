@@ -11,6 +11,10 @@
 
 gli script per funzionare necessitano di una chiave per l'API
 
+## Deployment
+(Se necessario cambiare le configurazioni per il login su aws e serverless)  
+Dalla cartella aws-deployment/otello-chatbot lanciare 'npm i && npx  serverless deploy'  
+
 ## Idee
 ### superagent:
 - framework per la creazione di assistenti AI
