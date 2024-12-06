@@ -1,14 +1,23 @@
-service: otello-chatbot
+service: snps-otello-chatbot
 provider:
   name: aws
   runtime: nodejs18.x
-  stage: dev
+  stage: ${opt:stage, 'dev'}
   logRetentionInDays: 30
+  profile: snps
+  region: eu-central-1
+  httpApi:
+    cors: true
+
 functions:
   app:
     handler: app.server
-    enviroment: 
-      OPENAI_API_KEY: 	${ssm:/otello-chatbot/openai_api_key}    
+    environment:
+      OPENAI_API_KEY: ${ssm:/otello-chatbot/${sls:stage}/openai_api_key}
+    package:
+      individually: true
+      exclude:
+        - "./.env"
     events:
       - http:
           path: /
@@ -19,3 +28,4 @@ functions:
           method: POST
           cors: true
     timeout: 29
+    

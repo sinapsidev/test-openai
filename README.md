@@ -1,21 +1,21 @@
 # test-openai
 ## indice
-- actionsGPT: file per il setup di con GPT custom
 - assistant: script per interagire con un assistant
-- aws-deployment: file per creare una lambda che implementa l'assistente
+- aws-deployment: directory dove usate per il deploy del chatbot e della coversione vocale con serverless
 - chatbotDemo: applicazione web che implementa un chatbot usando chatGPT con la possibilità di interagire con API  
     non c'è ancora memoria delle conversazioni -> ogni messaggio viene risposto indipendentemente dagli altri
-- datatestAPI: api perr gli endpoint di prova
+- datatestAPI: api per gli endpoint di prova
 - fineTuning: file per fare il fine tuning di un modello di openai e chatbot dopo il finetuning
-- superagent: script per usare l'api messa a disposizione del framework superagentai
 
 gli script per funzionare necessitano di una chiave per l'API
 
 ## Deployment
+Le chiavi api di openai sono salvate in aws ssm
 (Se necessario cambiare le configurazioni per il login su aws e serverless)  
-Dalla cartella aws-deployment/otello-chatbot lanciare 'npm i && npx  serverless deploy'  
+Dalla cartella aws-deployment/otello-chatbot lanciare 'npm i && npx  serverless deploy'  ('--stage prod' per la produzione)
+Dalla cartella aws-deployment/chat-to-speech lanciare 'npm i && npx  serverless deploy'  ('--stage prod' per la produzione)
 
-## Idee
+## Ricerca
 ### superagent:
 - framework per la creazione di assistenti AI
 - alternativa opensource, free e con possibilità di hostarla privatamente di openai assistant

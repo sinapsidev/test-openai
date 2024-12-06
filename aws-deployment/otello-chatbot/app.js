@@ -1,7 +1,7 @@
 const express = require('express');
 const app = express();
 const sls = require('serverless-http');
-const { askGPT } = require("./gptapiTuned");
+const { askGPT } = require("./lib/gptapiTuned");
 
 // const cors = require('cors');
 // app.use(cors())
@@ -13,6 +13,10 @@ app.get('/', async (req, res, next) => {
 
 app.post('/askGPT', async (req, res, next) => {
     const { botReq, access_token, id_addetto } = req.body;
+    res.set({
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+    })
     
     try {
         const msg = await askGPT(botReq, access_token, id_addetto);

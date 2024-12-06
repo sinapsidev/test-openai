@@ -18,10 +18,16 @@ module.exports.askGPT = async (user_request, access_token, id_addetto) => {
 /* Funzioni ausiliarie */
 const deleteFiles = async () => {
     const list = await openai.files.list();
+
+    if (!openai.files)
+        return
     for await (const file of list) {
         await openai.files.del(file.id);
     }
 
+    
+    if (!openai.beta.assistants.files)
+        return
     const assistantFiles = await openai.beta.assistants.files.list(
         assistantF_id
     );
@@ -79,7 +85,7 @@ const requestProcessing = (request, function_args) => {
 
 /* ritorna una risposta se non servono file o indica quali file servano */
 const askCompletion = async (user_request, access_token, id_addetto) => {
-    
+
     const completion = await openai.chat.completions.create({
         messages: [{ role: "system", content: context }, { role: "user", content: user_request }],
         model: "ft:gpt-3.5-turbo-0613:personal::8oveFtmG",
@@ -106,16 +112,16 @@ const askCompletion = async (user_request, access_token, id_addetto) => {
         ],
         tool_choice: "auto",
     });
-    
+
     // tool requested
     if (!completion.choices[0].message.content && completion.choices[0].message.tool_calls) {
         const output = await getOutput(completion.choices[0].message.tool_calls[0].function.name,
             completion.choices[0].message.tool_calls[0].function.arguments, access_token, id_addetto);
-            
-            user_request = requestProcessing(user_request, completion.choices[0].message.tool_calls[0].function.arguments);
-            
-            if (output.type === 'file') {
-                const output_files = [output];
+
+        user_request = requestProcessing(user_request, completion.choices[0].message.tool_calls[0].function.arguments);
+
+        if (output.type === 'file') {
+            const output_files = [output];
             return askFileAssistant(user_request, output_files);
         }
 
