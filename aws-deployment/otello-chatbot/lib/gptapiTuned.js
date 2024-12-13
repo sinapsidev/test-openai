@@ -6,7 +6,9 @@ const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 
 const context = "Sei un operatore del servizio clienti.Puoi rispondere alle domande solo con informazioni dalle seguenti risorse:dati_personali, dotazioni_strumenti, dotazioni_consumo, dotazioni_automezzi, buste_paga, rapporti, ruoli, presenze_non_bloccate, presenze_bloccate, presenze,rimborsi, non_conformità, riconoscimenti, abilitazioni_assegnate, mansioni_per_addetti, documenti, fasi_interventi_non_completate, fasi_verifiche_non_completate.Non devi rispondere a domande al di fuori dell'ambito delle risorse.";
-let assistantF_id = 'asst_xkM3V2sEngbh8y1wvKw2WDRJ';       //F
+let assistantF_id = "asst_xkM3V2sEngbh8y1wvKw2WDRJ";
+let finetuned_model = "ft:gpt-3.5-turbo-0613:personal::8oveFtmG"; // 3.5, v1
+// let finetuned_model = "ft:gpt-4o-mini-2024-07-18:personal::Adv9wIx1"; // 4o-mini, v2
 
 
 module.exports.askGPT = async (user_request, access_token, id_addetto) => {
@@ -88,7 +90,7 @@ const askCompletion = async (user_request, access_token, id_addetto) => {
 
     const completion = await openai.chat.completions.create({
         messages: [{ role: "system", content: context }, { role: "user", content: user_request }],
-        model: "ft:gpt-3.5-turbo-0613:personal::8oveFtmG",
+        model: finetuned_model,
         tools: [
             {
                 "type": "function",
