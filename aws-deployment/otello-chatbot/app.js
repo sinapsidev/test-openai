@@ -1,7 +1,7 @@
 const express = require('express');
 const app = express();
 const sls = require('serverless-http');
-const { askGPT } = require("./lib/gptapiTuned");
+const { askGPT } = require("./lib/openaiApi");
 
 // const cors = require('cors');
 // app.use(cors())

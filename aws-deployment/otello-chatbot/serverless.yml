@@ -9,11 +9,18 @@ provider:
   httpApi:
     cors: true
 
+useDotenv: true
+
 functions:
   app:
     handler: app.server
     environment:
       OPENAI_API_KEY: ${ssm:/otello-chatbot/${sls:stage}/openai_api_key}
+      # ASSISTANT_ID = asst_xkM3V2sEngbh8y1wvKw2WDRJ  # v1
+      # FINETUNED_MODEL_ID = ft:gpt-3.5-turbo-0613:personal::8oveFtmG  # v1
+      ASSISTANT_ID: asst_YJTAwcxcQ5Pks3dK7Q6ZjJTl  # v2
+      FINETUNED_MODEL_ID: ft:gpt-4o-mini-2024-07-18:personal::Adv9wIx1  # v2
+      VECTOR_STORE_ID: vs_n3DAIkbGQL1tbJGFSZL0UqJv  # v2
     package:
       individually: true
       exclude:
