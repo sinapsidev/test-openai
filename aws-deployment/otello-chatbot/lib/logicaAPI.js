@@ -91,13 +91,14 @@ module.exports.LogicaFetch = async (resource, access_token, idAgente) => {
             res = await res.json();
             const records = new String(res.records)
             if (records.length == 0) {
-                console.log('vuoto')
+                console.log("Fetched Logica api succesfully, requested resources not found or empty");
                 return {
                     type: 'text',
                     text: `non ci sono ${resource} disponibili.`,
                 }
             }
             else {
+                console.log("Fetched Logica api succesfully");
                 return {
                     type: 'file',
                     file: await resToFile(res.records, resource),

@@ -44,12 +44,12 @@ module.exports.askCompletion = async (user_request) => {
     }
     else if (completion.choices[0].message.content) {
         return {
-            needsApiFetch: true,
+            needsApiFetch: false,
             response: completion.choices[0].message.content,
             error: false
         }
     }
     else {
-        throw Error("Error while fetching openai api for completion, response empty");
+        throw Error("Error while fetching Openai api for completion, response empty");
     }
 }

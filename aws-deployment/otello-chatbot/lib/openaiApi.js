@@ -7,10 +7,16 @@ const { askFileAssistant } = require('./gptAssistant');
   possibile, altrimenti prendendo i dati necessari dall API di Logica */ 
 module.exports.askGPT = async (user_request, access_token, id_addetto) => {
     const res = await askCompletion(user_request, access_token, id_addetto);
-
-    if (!res.needsApiFetch)
+    
+    if (!res.needsApiFetch) {
+        console.log(`Response: ${res.response}`);
         return res.response;
+    }
     else {
+        if(!res.functionName || !res.functionArgs)
+            throw Error("Not enough information to fetch the Openai api");
+        
+        console.log(`Required function call, name: ${res.functionName} args: ${res.functionArgs}`);
         const output = await getOutput(res.functionName, res.functionArgs, access_token, id_addetto);
 
         user_request = requestProcessing(user_request, res.functionArgs);
@@ -27,6 +33,7 @@ module.exports.askGPT = async (user_request, access_token, id_addetto) => {
 /* prende i risultati delle chiamate all' API */
 const getOutput = async (function_name, function_args, access_token, id_addetto) => {
     let parameters = JSON.parse(function_args);
+
     parameters = Object.keys(parameters).map((key) => parameters[key]);
     let output = {};
 

@@ -8,14 +8,15 @@ let vectorStore_id = process.env.VECTOR_STORE_ID;
 
 /* analizza i file necessari e ritorna una risposta */
 module.exports.askFileAssistant = async (user_request, output_files) => {
-    deleteFiles();
+
+    await deleteFiles();
 
     let redirection = '';
     const file_id = await uploadFile(output_files);
 
     redirection = `I dati che ti servono su ${output_files[0].label} sono nel file: ${file_id}`;
 
-    console.log("uploading to asisstant files:", [file_id]);
+    console.log("Uploading file to asisstant:", [file_id]);
 
     const thread = await openai.beta.threads.create();
 
@@ -32,6 +33,7 @@ module.exports.askFileAssistant = async (user_request, output_files) => {
     await sleep(2000);
 
     let run = await openai.beta.threads.runs.create(thread.id, { assistant_id });
+
 
     do {
         run = await openai.beta.threads.runs.retrieve(thread.id, run.id);
@@ -59,31 +61,36 @@ module.exports.askFileAssistant = async (user_request, output_files) => {
 
 
 const deleteFiles = async () => {
-    // Elimina i file
-    const list = await openai.files.list();
-    if (!openai.files)
-        return
-    for await (const file of list) {
-        await openai.files.del(file.id);
-    }
+    try {
+        const list = await openai.files.list();
 
-    // Rimuove i file dal vs
-    for await (const file of list) {
-        await openai.beta.vectorStores.files.create(vectorStore_id, { file_id: file.id });
-    }
+        if (!openai.files)
+            return
+        
+        // Elimina i file
+        for await (let file of list) {
+            try {
+                await openai.files.del(file.id);
+            } catch (e) { }
+        }
 
-    // Rimuove i file dagli assistenti
-    if (!openai.beta.assistants.files)
-        return
-    const assistantFiles = await openai.beta.assistants.files.list(
-        assistant_id
-    );
-    for await (const file of assistantFiles.data) {
-        await openai.beta.assistants.files.del(
-            assistant_id,
-            file.id
-        );
-    }
+        // Rimuove i file dal vs
+        for await (let file of list) {
+            try {
+                await openai.beta.vectorStores.files.del(vectorStore_id, file.id);
+            } catch (e) { }
+        }
+
+        // Rimuove i file dagli assistenti
+        if (!openai.beta.assistants.files)
+            return
+        const assistantFiles = await openai.beta.assistants.files.list(assistant_id);
+        for await (let file of assistantFiles.data) {
+            try {
+                await openai.beta.assistants.files.del(assistant_id, file.id);
+            } catch (e) { }
+        }
+    } catch (e) { }
 }
 
 const deleteVS = async () => {
@@ -100,8 +107,8 @@ const uploadFile = async (output_files) => {
     if (output_files.length > 1) throw new Error("There shouldn't be that may files");
 
     let file = await openai.files.create({ file: output_files[0].file, purpose: "assistants" });
-    file = await openai.beta.vectorStores.files.create(vectorStore_id, file.id);
-    console.log("file upload:", file);
+    file = await openai.beta.vectorStores.files.create(vectorStore_id, { file_id: file.id });
+    console.log("File uploaded to vector store:", file);
 
     return file.id;
 }
