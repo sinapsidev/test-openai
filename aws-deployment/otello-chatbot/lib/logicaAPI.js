@@ -1,7 +1,7 @@
 var fs = require('fs');
 
 
-const url = 'https://logicadev2.snps.it/';
+const url = 'https://logicawebdev2.snps.it/';
 const base_url = url + 'api/v2/0';
 const limit = 100;
 

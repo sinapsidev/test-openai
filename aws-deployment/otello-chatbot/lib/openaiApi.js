@@ -16,7 +16,7 @@ module.exports.askGPT = async (user_request, access_token, id_addetto) => {
         if(!res.functionName || !res.functionArgs)
             throw Error("Not enough information to fetch the Openai api");
         
-        console.log(`Required function call, name: ${res.functionName} args: ${res.functionArgs}`);
+        console.log(`Required function call: {name: ${res.functionName}, args: ${res.functionArgs}}`);
         const output = await getOutput(res.functionName, res.functionArgs, access_token, id_addetto);
 
         user_request = requestProcessing(user_request, res.functionArgs);

@@ -2,7 +2,7 @@ service: snps-otello-chatbot
 provider:
   name: aws
   runtime: nodejs18.x
-  stage: ${opt:stage, 'dev'}
+  stage: ${opt:stage, 'dev'}  # before goning to prod, consider changing logicaAPI url
   logRetentionInDays: 30
   profile: snps
   region: eu-central-1
