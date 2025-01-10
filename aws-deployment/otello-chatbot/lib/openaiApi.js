@@ -5,8 +5,8 @@ const { askFileAssistant } = require('./gptAssistant');
 
 /* Interroga chatGPT con la domanda dell'utente, ritornando direttamente la risposta se 
   possibile, altrimenti prendendo i dati necessari dall API di Logica */ 
-module.exports.askGPT = async (user_request, access_token, id_addetto) => {
-    const res = await askCompletion(user_request, access_token, id_addetto);
+module.exports.askGPT = async (user_request, credentials) => {
+    const res = await askCompletion(user_request, credentials);
     
     if (!res.needsApiFetch) {
         console.log(`Response: ${res.response}`);
@@ -17,7 +17,7 @@ module.exports.askGPT = async (user_request, access_token, id_addetto) => {
             throw Error("Not enough information to fetch the Openai api");
         
         console.log(`Required function call: {name: ${res.functionName}, args: ${res.functionArgs}}`);
-        const output = await getOutput(res.functionName, res.functionArgs, access_token, id_addetto);
+        const output = await getOutput(res.functionName, res.functionArgs, credentials);
 
         user_request = requestProcessing(user_request, res.functionArgs);
 
@@ -31,7 +31,7 @@ module.exports.askGPT = async (user_request, access_token, id_addetto) => {
 }
 
 /* prende i risultati delle chiamate all' API */
-const getOutput = async (function_name, function_args, access_token, id_addetto) => {
+const getOutput = async (function_name, function_args, credentials) => {
     let parameters = JSON.parse(function_args);
 
     parameters = Object.keys(parameters).map((key) => parameters[key]);
@@ -39,7 +39,7 @@ const getOutput = async (function_name, function_args, access_token, id_addetto)
 
     if (function_name === 'logica_fetch') {
         console.log("fetching Logica API for: ", parameters)
-        output = LogicaFetch(parameters[0], access_token, id_addetto);
+        output = LogicaFetch(parameters[0], credentials);
     }
 
     return output;

@@ -1,14 +1,18 @@
 var fs = require('fs');
 
 
-const url = 'https://logicawebdev2.snps.it/';
-const base_url = url + 'api/v2/0';
+const url = 'https://logicawebdev2.snps.it/';    //dev
+// const url = 'https://app.logicasolutions.it/';      //prod
+const base_url = url + 'api/v2/';
 const limit = 100;
 
 
-module.exports.LogicaFetch = async (resource, access_token, idAgente) => {
+module.exports.LogicaFetch = async (resource, credentials) => {
+    let { tenant, access_token, id_addetto } = credentials
+    tenant = tenant || '0';
+
     if (resource === 'dati_personali') {
-        let res = await fetch(base_url + '/data/me', {
+        let res = await fetch(base_url + tenant +'/data/me', {
             headers: {
                 'Authorization': 'Bearer ' + access_token
             }
@@ -21,7 +25,13 @@ module.exports.LogicaFetch = async (resource, access_token, idAgente) => {
                 name: 'dati_personali',
             }
         }
-        else throw new Error("Couldn't fetch the API");
+        else {
+            err_msg = (await res.json()).message
+            if(err_msg)
+                throw new Error(`Couldn't fetch the API, response status: ${res.status}, response error: ${err_msg}`);
+            else
+                throw new Error(`Couldn't fetch the API, response status: ${res.status}`);
+        }
     }
     else {
         let idVista;
@@ -82,14 +92,14 @@ module.exports.LogicaFetch = async (resource, access_token, idAgente) => {
                 idVista = -1;
                 break;
         }
-        let res = await fetch(base_url + `/data/vista-scheda-rows/${idVista}?limit=${limit}&offset=0&idRecord=${idAgente}`, {
+        let res = await fetch(base_url + tenant + `/data/vista-scheda-rows/${idVista}?limit=${limit}&offset=0&idRecord=${id_addetto}`, {
             headers: {
                 'Authorization': 'Bearer ' + access_token
             }
         })
         if (res.ok) {
             res = await res.json();
-            const records = new String(res.records)
+            const records = new String(res.records);
             if (records.length == 0) {
                 console.log("Fetched Logica api succesfully, requested resources not found or empty");
                 return {
@@ -108,7 +118,11 @@ module.exports.LogicaFetch = async (resource, access_token, idAgente) => {
             }
         }
         else {
-            throw new Error("Couldn't fetch the API");
+            err_msg = (await res.json()).message
+            if(err_msg)
+                throw new Error(`Couldn't fetch the API, response status: ${res.status}, response error: ${err_msg}`);
+            else
+                throw new Error(`Couldn't fetch the API, response status: ${res.status}`);
         }
     }
 }
@@ -117,5 +131,5 @@ async function resToFile(records, resource) {
     fs.writeFile(`/tmp/temp.json`, JSON.stringify(records, null, 2), 'utf8', function (err) {
         if (err) throw err;
     });
-    return fs.createReadStream(`/tmp/temp.json`);  
+    return fs.createReadStream(`/tmp/temp.json`);
 }

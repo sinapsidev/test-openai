@@ -12,14 +12,15 @@ app.get('/', async (req, res, next) => {
 })
 
 app.post('/askGPT', async (req, res, next) => {
-    const { botReq, access_token, id_addetto } = req.body;
+    const { botReq, tenant, access_token, id_addetto } = req.body;
+    const credentials = { tenant, access_token, id_addetto }
     res.set({
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Credentials': true,
     })
-    
+
     try {
-        const msg = await askGPT(botReq, access_token, id_addetto);
+        const msg = await askGPT(botReq, credentials);
         if (msg)
             res.status(200).json({ botRes: msg });
         else
