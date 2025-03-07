@@ -16,8 +16,6 @@ module.exports.askFileAssistant = async (user_request, output_files) => {
 
     redirection = `I dati che ti servono su ${output_files[0].label} sono nel file: ${file_id}`;
 
-    console.log("Uploading file to asisstant:", [file_id]);
-
     const thread = await openai.beta.threads.create();
 
     await openai.beta.threads.messages.create(
@@ -42,7 +40,7 @@ module.exports.askFileAssistant = async (user_request, output_files) => {
         if (run.status === 'completed') {
             const messages = await openai.beta.threads.messages.list(thread.id);
             const res = noSources(messages.data[0].content[0].text.value);
-            console.log("answer", res);
+            console.log("Answer: ", res);
 
             return res
         }

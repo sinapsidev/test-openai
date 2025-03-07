@@ -1,18 +1,18 @@
 var fs = require('fs');
 
 
-// const url = 'https://logicawebdev2.snps.it/';    //dev
-const url = 'https://app.logicasolutions.it/';      //prod
+const url = 'https://logicawebdev2.snps.it/';    //dev
+// const url = 'https://app.logicasolutions.it/';      //prod
 const base_url = url + 'api/v2/';
 const limit = 100;
 
 
 module.exports.LogicaFetch = async (resource, credentials) => {
-    let { tenant, access_token, id_addetto } = credentials
+    let { tenant, access_token, id_addetto, id_persona } = credentials
     tenant = tenant || '0';
 
     if (resource === 'dati_personali') {
-        let res = await fetch(base_url + tenant +'/data/me', {
+        let res = await fetch(base_url + tenant + '/data/me', {
             headers: {
                 'Authorization': 'Bearer ' + access_token
             }
@@ -22,15 +22,65 @@ module.exports.LogicaFetch = async (resource, credentials) => {
             return {
                 type: 'file',
                 file: await resToFile({ addetto: res.addetto, persona: res.persona }),
-                name: 'dati_personali',
+                label: 'dati_personali',
             }
         }
         else {
             err_msg = (await res.json()).message
-            if(err_msg)
+            if (err_msg)
                 throw new Error(`Couldn't fetch the API, response status: ${res.status}, response error: ${err_msg}`);
             else
                 throw new Error(`Couldn't fetch the API, response status: ${res.status}`);
+        }
+    }
+    else if (resource === 'documenti') {
+        const idVista1 = 109;   // documenti addetto
+        const idVista2 = 10025; // documenti persona
+        let documenti_addetto = [], documenti_persona = [];
+
+        let [res1, res2] = await Promise.all([
+            fetch(base_url + tenant + `/data/vista-scheda-rows/${idVista1}?limit=${limit / 4}&offset=0&idRecord=${id_addetto}`, {
+                headers: {
+                    'Authorization': 'Bearer ' + access_token
+                }
+            }),
+            fetch(base_url + tenant + `/data/vista-scheda-rows/${idVista2}?limit=${limit / 4}&offset=0&idRecord=${id_persona}`, {
+                headers: {
+                    'Authorization': 'Bearer ' + access_token
+                }
+            })
+        ]);
+
+        if (res1.ok) {
+            res1 = await res1.json();
+            documenti_addetto = JSON.stringify(res1.records, null, 0);
+        }
+        else await throwErrorMsg(res1);
+        
+        if (res2.ok) {
+            res2 = await res2.json();
+            documenti_persona = JSON.stringify(res2.records, null, 0);
+        }
+        else await throwErrorMsg(res2);
+
+        if (documenti_addetto.length == 0 && documenti_persona.length == 0) {
+            console.log("Fetched Logica api succesfully, requested resources not found or empty");
+            return {
+                type: 'text',
+                text: `non ci sono ${resource} disponibili.`,
+            }
+        }
+        else {
+            console.log("Fetched Logica api succesfully");
+            return {
+                type: 'file',
+                file: await resToFile({
+                    documenti_addetto,
+                    documenti_persona,
+                }, resource),
+                name: `${idVista1}, ${idVista2}`,
+                label: resource
+            }
         }
     }
     else {
@@ -48,9 +98,6 @@ module.exports.LogicaFetch = async (resource, credentials) => {
                 break;
             case 'dotazioni_automezzi':
                 idVista = 103;
-                break;
-            case 'documenti':
-                idVista = 109;
                 break;
             case 'rapporti':
                 idVista = 10024;
@@ -119,7 +166,7 @@ module.exports.LogicaFetch = async (resource, credentials) => {
         }
         else {
             err_msg = (await res.json()).message
-            if(err_msg)
+            if (err_msg)
                 throw new Error(`Couldn't fetch the API, response status: ${res.status}, response error: ${err_msg}`);
             else
                 throw new Error(`Couldn't fetch the API, response status: ${res.status}`);
@@ -132,4 +179,12 @@ async function resToFile(records, resource) {
         if (err) throw err;
     });
     return fs.createReadStream(`/tmp/temp.json`);
+}
+
+async function throwErrorMsg(res) {
+    err_msg = (await res.json()).message
+    if (err_msg)
+        throw new Error(`Couldn't fetch the API, response status: ${res.status}, response error: ${err_msg}`);
+    else
+        throw new Error(`Couldn't fetch the API, response status: ${res.status}`);
 }

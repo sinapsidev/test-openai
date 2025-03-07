@@ -12,8 +12,8 @@ app.get('/', async (req, res, next) => {
 })
 
 app.post('/askGPT', async (req, res, next) => {
-    const { botReq, tenant, access_token, id_addetto } = req.body;
-    const credentials = { tenant, access_token, id_addetto }
+    const { botReq, tenant, access_token, id_addetto, id_persona } = req.body;
+    const credentials = { tenant, access_token, id_addetto, id_persona }
     res.set({
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Credentials': true,
