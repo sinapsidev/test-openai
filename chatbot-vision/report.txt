@@ -1,0 +1,7 @@
+L'OCR effettuata da Openai non sempre riconosce tutto il testo presente in un documento, ma quello che trova è molto preciso; 
+non sono presenti, ad esempio caratteri speciali per le parole non riconosciute.
+Viene riconosciuto anche il contenuto delle immagini, non solo il testo.
+I tempi di estrazione sono più ridotti.
+
+Le buone prestazioni di gpt-4v sono dovute all'utilizzo di OCR e vision transformer 
+Bisogna anche considerare i costi aggiuntivi dovuti all'elaborzione di immagini/pdf
