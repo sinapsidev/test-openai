@@ -23,7 +23,7 @@ module.exports.askFileAssistant = async (user_request, output_files) => {
         {
             role: "user",
             content: user_request + redirection,
-            content: `${user_request}. ${redirection}`,
+            content: `${user_request} ${redirection}`,
             // attachments: [{ file_id: file_id, tools: [{ type: "file_search" }] }],
         }
     );

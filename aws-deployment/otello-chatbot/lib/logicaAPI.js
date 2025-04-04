@@ -14,7 +14,8 @@ module.exports.LogicaFetch = async (resource, credentials) => {
     if (resource === 'dati_personali') {
         let res = await fetch(base_url + tenant + '/data/me', {
             headers: {
-                'Authorization': 'Bearer ' + access_token
+                'Authorization': 'Bearer ' + access_token,
+                'time-zone': 'Europe/Rome',
             }
         })
         if (res.ok) {
@@ -41,12 +42,14 @@ module.exports.LogicaFetch = async (resource, credentials) => {
         let [res1, res2] = await Promise.all([
             fetch(base_url + tenant + `/data/vista-scheda-rows/${idVista1}?limit=${limit / 4}&offset=0&idRecord=${id_addetto}`, {
                 headers: {
-                    'Authorization': 'Bearer ' + access_token
+                    'Authorization': 'Bearer ' + access_token,
+                    'time-zone': 'Europe/Rome',
                 }
             }),
             fetch(base_url + tenant + `/data/vista-scheda-rows/${idVista2}?limit=${limit / 4}&offset=0&idRecord=${id_persona}`, {
                 headers: {
-                    'Authorization': 'Bearer ' + access_token
+                    'Authorization': 'Bearer ' + access_token,
+                    'time-zone': 'Europe/Rome',
                 }
             })
         ]);
@@ -56,7 +59,7 @@ module.exports.LogicaFetch = async (resource, credentials) => {
             documenti_addetto = JSON.stringify(res1.records, null, 0);
         }
         else await throwErrorMsg(res1);
-        
+
         if (res2.ok) {
             res2 = await res2.json();
             documenti_persona = JSON.stringify(res2.records, null, 0);
@@ -141,7 +144,8 @@ module.exports.LogicaFetch = async (resource, credentials) => {
         }
         let res = await fetch(base_url + tenant + `/data/vista-scheda-rows/${idVista}?limit=${limit}&offset=0&idRecord=${id_addetto}`, {
             headers: {
-                'Authorization': 'Bearer ' + access_token
+                'Authorization': 'Bearer ' + access_token,
+                'time-zone': 'Europe/Rome',
             }
         })
         if (res.ok) {
@@ -164,13 +168,7 @@ module.exports.LogicaFetch = async (resource, credentials) => {
                 }
             }
         }
-        else {
-            err_msg = (await res.json()).message
-            if (err_msg)
-                throw new Error(`Couldn't fetch the API, response status: ${res.status}, response error: ${err_msg}`);
-            else
-                throw new Error(`Couldn't fetch the API, response status: ${res.status}`);
-        }
+        else await throwErrorMsg(res);
     }
 }
 
