@@ -5,7 +5,7 @@ const { askFileAssistant } = require('./gptAssistant');
 
 /* Interroga chatGPT con la domanda dell'utente, ritornando direttamente la risposta se 
   possibile, altrimenti prendendo i dati necessari dall API di Logica */ 
-module.exports.askGPT = async (user_request, credentials) => {
+module.exports.askGPT = async (user_request, history, credentials) => {
     const res = await askCompletion(user_request, credentials);
     
     if (!res.needsApiFetch) {
@@ -23,7 +23,7 @@ module.exports.askGPT = async (user_request, credentials) => {
 
         if (output.type === 'file') {
             const output_files = [output];
-            return askFileAssistant(user_request, output_files);
+            return askFileAssistant(user_request, history, output_files);
         }
         else 
             return output.text;

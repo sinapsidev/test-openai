@@ -7,56 +7,49 @@ let vectorStore_id = process.env.VECTOR_STORE_ID;
 
 
 /* analizza i file necessari e ritorna una risposta */
-module.exports.askFileAssistant = async (user_request, output_files) => {
+module.exports.askFileAssistant = async (user_request, history, output_files) => {
 
-    await deleteFiles();
-
-    let redirection = '';
     const file_id = await uploadFile(output_files);
 
-    redirection = `I dati che ti servono su ${output_files[0].label} sono nel file: ${file_id}`;
+    const redirection = `I dati che ti servono su ${output_files[0].label} sono nel file: ${file_id}`;
 
     console.log("Uploading file to asisstant:", [file_id]);
 
-    const thread = await openai.beta.threads.create();
-
-    await openai.beta.threads.messages.create(
-        thread.id,
-        {
-            role: "user",
-            content: user_request + redirection,
-            content: `${user_request}. ${redirection}`,
-            // attachments: [{ file_id: file_id, tools: [{ type: "file_search" }] }],
-        }
-    );
+    const thread = await openai.beta.threads.create({
+        messages: processHistory(`${user_request}. ${redirection}`, history)
+    });
 
     await sleep(2000);
 
     let run = await openai.beta.threads.runs.create(thread.id, { assistant_id });
-
+    let res = '';
 
     do {
         run = await openai.beta.threads.runs.retrieve(thread.id, run.id);
-        console.log(run.status)
+        // console.log(run.status)
 
         if (run.status === 'completed') {
             const messages = await openai.beta.threads.messages.list(thread.id);
-            const res = noSources(messages.data[0].content[0].text.value);
-            console.log("answer", res);
-
-            return res
+            res = noSources(messages.data[0].content[0].text.value);
+            break;
         }
         else if (run.status === 'failed') {
             const messages = await openai.beta.threads.messages.list(thread.id);
             if (messages.data[0].role === "assistant")
-                return messages.data[0].content[0].text.value;
-            else {
-                return false;
-            }
+                res = messages.data[0].content[0].text.value;
+            else
+                res = false;
+            break;
         }
         await sleep(1000);
 
     } while (run.status !== 'completed');
+
+    await openai.beta.threads.del(thread.id);
+    await deleteFiles();
+
+    console.log("answer", res);
+    return res;
 }
 
 
@@ -66,7 +59,7 @@ const deleteFiles = async () => {
 
         if (!openai.files)
             return
-        
+
         // Elimina i file
         for await (let file of list) {
             try {
@@ -93,14 +86,6 @@ const deleteFiles = async () => {
     } catch (e) { }
 }
 
-const deleteVS = async () => {
-    // // Elimina i vs
-    let vectorStores = await openai.beta.vectorStores.list();
-    vectorStores.data.forEach(async vs => {
-        const deletedVectorStore = await openai.beta.vectorStores.del(vs.id);
-    });
-}
-
 const uploadFile = async (output_files) => {
     if (output_files.length === 0) throw new Error('Cannot call file assistant without files');
 
@@ -119,4 +104,24 @@ const sleep = (delay) => new Promise((resolve) => setTimeout(resolve, delay))
 const noSources = (text) => {
     const regex = /【[^【】]*】/g;
     return text.replace(regex, '');
+}
+
+const processHistory = (user_request, history) => {
+    messages = [];
+    
+    if (history) {
+        for (let i = 0; i < history.length; i++) {
+            messages.push({
+                role: i % 2 === 0 ? 'user' : 'assistant',
+                content: history[i]
+            })
+        }
+    }
+
+    messages.push({
+        role: 'user',
+        content: user_request
+    });
+
+    return messages;
 }
