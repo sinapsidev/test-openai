@@ -1,12 +1,12 @@
 const { LogicaFetch } = require('./logicaAPI');
-const { askCompletion } = require('./gptCompletion');
+const { askCompletionTool, askCompletion } = require('./gptCompletion');
 const { askFileAssistant } = require('./gptAssistant');
 
 
 /* Interroga chatGPT con la domanda dell'utente, ritornando direttamente la risposta se 
   possibile, altrimenti prendendo i dati necessari dall API di Logica */ 
 module.exports.askGPT = async (user_request, history, credentials) => {
-    const res = await askCompletion(user_request, credentials);
+    const res = await askCompletionTool(user_request, history);
     
     if (!res.needsApiFetch) {
         console.log(`Response: ${res.response}`);
@@ -19,11 +19,14 @@ module.exports.askGPT = async (user_request, history, credentials) => {
         console.log(`Required function call: {name: ${res.functionName}, args: ${res.functionArgs}}`);
         const output = await getOutput(res.functionName, res.functionArgs, credentials);
 
-        user_request = requestProcessing(user_request, res.functionArgs);
+        user_request = processRequest(user_request, res.functionArgs);
 
         if (output.type === 'file') {
             const output_files = [output];
             return askFileAssistant(user_request, history, output_files);
+        }
+        else if(output.type === 'text') {
+            return askCompletion(user_request, history, output);
         }
         else 
             return output.text;
@@ -45,7 +48,7 @@ const getOutput = async (function_name, function_args, credentials) => {
     return output;
 }
 
-const requestProcessing = (request, function_args) => {
+const processRequest = (request, function_args) => {
     let parameters = JSON.parse(function_args);
     parameters = Object.keys(parameters).map((key) => parameters[key]);
 
