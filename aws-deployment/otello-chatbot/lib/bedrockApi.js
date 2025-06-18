@@ -1,12 +1,11 @@
 const { LogicaFetch } = require('./logicaAPI');
-const { askCompletionTool, askCompletion } = require('./gptConversion');
-// const { askFileAssistant } = require('./gptAssistant');
+const { askConversionTool, askConversion, askConversionFile } = require('./gptConversion');
 
 
 /* Interroga chatGPT con la domanda dell'utente, ritornando direttamente la risposta se 
   possibile, altrimenti prendendo i dati necessari dall API di Logica */ 
 module.exports.askGPT = async (user_request, history, credentials) => {
-    const res = await askCompletionTool(user_request, history);
+    const res = await askConversionTool(user_request, history);
     
     if (!res.needsApiFetch) {
         console.log(`Response: ${res.response}`);
@@ -22,12 +21,10 @@ module.exports.askGPT = async (user_request, history, credentials) => {
         user_request = processRequest(user_request, res.functionArgs);
 
         if (output.type === 'file') {
-            throw Error("Not files not supported yet");
-            const output_files = [output];
-            return askFileAssistant(user_request, history, output_files);
+            return askConversionFile(user_request, history, output);
         }
         else if(output.type === 'text') {
-            return askCompletion(user_request, history, output);
+            return askConversion(user_request, history, output);
         }
         else 
             return output.text;

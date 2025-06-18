@@ -32,7 +32,8 @@ module.exports.LogicaFetch = async (resource, credentials) => {
                 return {
                     type: 'file',
                     file: await resToFile(data_str, 'dati_personali'),
-                    name: 'dati_personali'
+                    name: 'dati_personali',
+                    label: 'dati_personali'
                 }
         }
         else {
@@ -147,8 +148,10 @@ module.exports.LogicaFetch = async (resource, credentials) => {
 }
 
 async function resToFile(data, resource) {
-    fs.writeFile(`/tmp/temp.json`, data, 'utf8', function (err) {
+    fs.writeFile(`/tmp/temp.txt`, data, 'utf8', function (err) {
         if (err) throw err;
     });
-    return fs.createReadStream(`/tmp/temp.json`);
+    // return fs.createReadStream(`/tmp/temp.json`);
+    return fs.readFileSync(`/tmp/temp.txt`);
+    // TODO: non ritrnare un buffer ma solo la stringa del file
 }
