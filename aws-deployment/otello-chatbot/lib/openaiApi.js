@@ -1,6 +1,6 @@
 const { LogicaFetch } = require('./logicaAPI');
-const { askCompletionTool, askCompletion } = require('./gptCompletion');
-const { askFileAssistant } = require('./gptAssistant');
+const { askCompletionTool, askCompletion } = require('./gptConversion');
+// const { askFileAssistant } = require('./gptAssistant');
 
 
 /* Interroga chatGPT con la domanda dell'utente, ritornando direttamente la risposta se 
@@ -22,6 +22,7 @@ module.exports.askGPT = async (user_request, history, credentials) => {
         user_request = processRequest(user_request, res.functionArgs);
 
         if (output.type === 'file') {
+            throw Error("Not files not supported yet");
             const output_files = [output];
             return askFileAssistant(user_request, history, output_files);
         }

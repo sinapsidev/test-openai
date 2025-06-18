@@ -35,7 +35,6 @@ module.exports.LogicaFetch = async (resource, credentials) => {
     }
     else {
         let idVista;
-
         switch (resource) {
             case 'abilitazioni_assegnate':
                 idVista = 30;
