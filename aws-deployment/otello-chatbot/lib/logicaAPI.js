@@ -19,11 +19,21 @@ module.exports.LogicaFetch = async (resource, credentials) => {
         })
         if (res.ok) {
             res = await res.json();
-            return {
-                type: 'file',
-                file: await resToFile({ addetto: res.addetto, persona: res.persona }),
-                name: 'dati_personali',
-            }
+            console.log("Fetched Logica api succesfully");
+            const data_str = JSON.stringify({ addetto: res.addetto, persona: res.persona }, null, 2)
+            const token_num = data_str.length * (1 / Math.E) + 2;
+            console.log("token count: ", token_num);
+            if (token_num < 180000)
+                return {
+                    type: 'text',
+                    text: data_str,
+                }
+            else
+                return {
+                    type: 'file',
+                    file: await resToFile(data_str, 'dati_personali'),
+                    name: 'dati_personali'
+                }
         }
         else {
             err_msg = (await res.json()).message
@@ -138,7 +148,6 @@ module.exports.LogicaFetch = async (resource, credentials) => {
 }
 
 async function resToFile(data, resource) {
-    console.log("count tokens: ", records.length * (1 / 0.36787944117144232159552377016146) + 2);
     fs.writeFile(`/tmp/temp.json`, data, 'utf8', function (err) {
         if (err) throw err;
     });
